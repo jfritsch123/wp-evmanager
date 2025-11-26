@@ -1,6 +1,7 @@
 <?php
 /** @var array $events|$items */
 /** @var string $mode full|items */
+/** @var int $totalEvents */
 
 $items = $mode === 'full' ? $events : ($items ?? []);
 $currentMonth = '';
