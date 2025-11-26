@@ -39,7 +39,7 @@ if ( ! defined('WPEM_WPFORMS_MAP') ) {
         'totime'    => 8,
         'descr3'    => 19,
         'organizer' => 14,
-        'persons'   => 13,
+        'persons'   => 40,
         'email'     => 17,
         'tel'       => 16,
         'type'      => 11,
