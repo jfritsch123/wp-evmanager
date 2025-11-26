@@ -1,0 +1,80 @@
+// -------------------------------
+// Saal-Checkbox Darstellung
+// -------------------------------
+.wpem-hall-label {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.wpem-hall {
+  &--free   .wpem-hall-label { border-color: var(--wpem-green) !important;  color: var(--wpem-green) !important; }
+  &--opt    .wpem-hall-label { border-color: var(--wpem-orange)!important;  color: var(--wpem-orange) !important; }
+  &--booked .wpem-hall-label { border-color: var(--wpem-red) !important;    color: var(--wpem-red) !important; }
+  &--off    .wpem-hall-label { border-color: var(--wpem-gray) !important;   color: var(--wpem-gray) !important; }
+}
+
+// -------------------------------
+// Tooltip
+// -------------------------------
+.wpem-tooltip {
+  position: absolute;
+  z-index: 99999;
+  background: #111827;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.45;
+  max-width: 240px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s ease;
+  white-space: normal; // Multi-line support
+
+  &.show { opacity: 1; }
+}
+
+.wpem-tip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0;
+}
+
+.wpem-tip-label {
+  min-width: 100px;
+  color: #d1d5db; // hellgrau
+}
+
+.wpem-tip-status {
+  font-weight: 600;
+}
+
+// kleine Statuspunkte
+.wpem-tip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: 0 0 8px;
+
+  &--free   { background: var(--wpem-green); }
+  &--opt    { background: var(--wpem-orange); }
+  &--booked { background: var(--wpem-red); }
+}
+
+// -------------------------------
+// Datepicker Helpers
+// -------------------------------
+.dayContainer {
+  padding: 10px !important;
+}
+
+.wpem-datepicker-help {
+  font-size: 0.85em;
+  color: #666;
+  margin-top: 4px;
+}

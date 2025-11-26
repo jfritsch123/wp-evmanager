@@ -1,0 +1,626 @@
+/* Admin CSS für WP Event Manager Plugin */
+/* ------------------------------------- */
+
+:root {
+    --wpem-green: #3dcc3d;
+    --wpem-orange: #f59e0b;
+    --wpem-red:    #ff0000;
+    --wpem-gray:   #9ca3af;
+
+    --status-anfrage: #9e9e9e;
+    --status-bearbeitung: #ffcc00;
+    --status-gebucht: #90ee90;
+    --status-vereinbarung: #228B22;
+}
+a:focus,
+a:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.wpem-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.wpem-overlay {
+    align-items: flex-start;
+}
+.wpem-overlay .wpem-loading .dashicons{
+    font-size: 60px;
+    width:60px;
+    height:60px;
+}
+.wpem-overlay .wpem-loading{
+    margin-top:10%;
+}
+.wpem-loading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 6px 10px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    font-size: 13px;
+    color: #2271b1;
+    z-index: 10;
+    animation: fadeIn 0.2s ease;
+}
+
+.wpem-loading.short{
+    background:transparent;
+}
+.wpem-loading.short .dashicons{
+    color:#fff;
+}
+.wpem-loading .dashicons {
+    font-size: 18px;
+    color: #2271b1;
+}
+
+.wpem-loading .dashicons.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.wpem-table tr.is-readonly {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wpem-table .sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.wpem-table th.sortable{
+     padding-left:8px;
+ }
+.wpem-table th.sortable div{
+    display:flex;
+    align-items: center;
+}
+.wpem-table th.sortable div a.wpem-help{
+    margin-left:auto
+}
+.wpem-table th.sortable.desc{
+    border:1px solid var(--wpem-orange);
+}
+.wpem-table th.sortable.asc{
+    border:1px solid var(--wpem-green);
+}
+.wpem-table th.sortable a{
+    display:inline;
+}
+.wpem-table th.sortable a span.dashicons{
+    float:none;
+
+}
+.wpem-table .sortable .sort-icon {
+    margin-left: 5px;
+    opacity: 0.5;
+}
+.wpem-table .sortable.active .sort-icon {
+    opacity: 1;
+}
+.wpem-table th.is-sorted {
+    background-color: #eef7ff;
+    color: #0073aa;
+}
+
+.wpem-table th.is-sorted .sort-icon {
+    color: #0073aa;
+    vertical-align: middle;
+    margin-left: 4px;
+    transition: transform 0.4s ease;
+}
+
+/* 🔄 Rotationsanimation beim Richtungswechsel */
+.wpem-table th.is-sorted .sort-icon.spin {
+    transform: rotate(180deg);
+}
+
+/* Layout für Filterbereich */
+.wpem-filter-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1.25rem;
+    align-items:start;
+}
+.wpem-col fieldset {
+    border:1px solid #e2e8f0;
+    padding:.75rem;
+    border-radius:6px;
+    margin-bottom:1rem;
+}
+.wpem-row { display:flex; gap:.75rem; align-items:center }
+
+.wpem-inline { display:inline-flex; gap:.5rem; align-items:center }
+.wpem-actions .button { margin:0.2rem;width:100%; }
+.wpem-hall-matrix { border-collapse:collapse;width:100% }
+.wpem-hall-matrix th,.wpem-hall-matrix td {
+    border:1px solid #e5e7eb;
+    padding:.35rem .5rem;
+    text-align:center;
+}
+.wpem-hall-matrix thead th { background:#f9fafb }
+.wpem-status label { margin-right:1rem }
+.wpem-mt { margin-top:.5rem }
+
+
+.wpem-grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:16px; }
+.wpem-col--right { position: sticky; top: 32px; align-self: start; }
+.wpem-filters__row { display:flex; gap:8px; margin-bottom:8px; }
+.wpem-filters__actions { display:flex; gap:8px; margin-bottom:12px; }
+.wpem-table tr{ cursor:pointer; }
+.wpem-table tr.is-active { background:#fff7e6; }
+.wpem-table tr td:first-child{ }
+.wpem-editor .wpem-form__grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.wpem-form__full { grid-column:1 / -1; }
+.wpem-form__actions { margin-top:12px; display:flex; gap:8px; align-items:center; }
+.button-link-delete { color:#b32d2e; }
+
+.wpem-clear-halls {
+    margin-top: .5rem;
+}
+.wpem-clear-halls a {
+    font-size: 0.85rem;
+    color: #2271b1;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.wpem-clear-halls a:hover {
+    color: #135e96;
+}
+
+/* status */
+fieldset.wpem-status label {
+    display: inline-block;
+    padding: 4px;
+    margin: 2px 0;
+    width: 100%;
+}
+
+fieldset.wpem-status label.anfrage.anfrage-active,
+.wpem-form__status label.anfrage.anfrage-active{
+    background-color: var(--status-anfrage);
+    color:#fff;
+}
+
+fieldset.wpem-status label.bearbeitung.bearbeitung-active,
+.wpem-form__status label.bearbeitung.bearbeitung-active{
+    background-color: var(--status-bearbeitung);
+}
+fieldset.wpem-status label.gebucht.gebucht-active,
+.wpem-form__status label.gebucht.gebucht-active{
+    background-color: var(--status-gebucht);
+}
+fieldset.wpem-status label.vereinbarung.vereinbarung-active,
+.wpem-form__status label.vereinbarung.vereinbarung-active{
+    background-color: var(--status-vereinbarung);
+    color:#fff;
+}
+
+#wpem-list .anfrage{
+    color:var(--status-anfrage);
+}
+#wpem-list .bearbeitung{
+    color:var(--status-bearbeitung);
+}
+#wpem-list .gebucht{
+    color:var(--status-gebucht);
+}
+#wpem-list .vereinbarung{
+    color:var(--status-vereinbarung);
+}
+/* Saalbelegung – Matrix */
+.wpem-form__place-matrix { grid-column: 1 / -1; border:1px solid #e5e7eb; border-radius:8px; padding:10px 12px; }
+.wpem-form__place-matrix legend { font-weight:600; padding:0 4px; }
+.wpem-place-legend { font-size:12px; opacity:.8; margin-top:8px; }
+
+.wpem-matrix { display:grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap:6px; }
+.wpem-matrix-row { display:contents; } /* erlaubt grid-basierte "Zeilen" */
+.wpem-matrix-head .wpem-matrix-cell { font-weight:600; }
+.wpem-matrix-col { text-align:center; }
+.wpem-matrix-cell { display:flex; justify-content:center; padding:4px; }
+.wpem-matrix-label { justify-content:flex-start; }
+
+.wpem-matrix input[type="radio"] { display:none; }
+.wpem-matrix label {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border:1px solid #d1d5db; border-radius:50%;
+    cursor:pointer; user-select:none;
+}
+.wpem-matrix input[type="radio"][value="0"]:checked + label {
+    /*background:var(--wpem-green); color:#fff;*/
+    border:1px solid var(--wpem-green);
+}
+.wpem-matrix input[type="radio"][value="1"]:checked + label {
+    background:var(--wpem-orange); color:#fff;
+}
+.wpem-matrix input[type="radio"][value="2"]:checked + label {
+    background:var(--wpem-red); color:#fff;
+}
+.wpem-matrix input[type="radio"] + label:hover {
+    border-color:#6b7280;
+}
+
+/* Status Checkbox-Gruppe */
+/*.wpem-form__status { grid-column: 1 / -1; border:1px solid #e5e7eb; border-radius:8px; padding:10px 12px; }*/
+.wpem-form__status .wpem-radio-group{
+    gap:0;
+}
+.wpem-form__status legend {
+    margin-bottom:8px;
+    width:100%;
+}
+.wpem-form__status label {
+    display:inline-block;
+    padding:4px;
+    margin:2px 0;
+}
+
+.wpem-check input[type="checkbox"] { margin-right:6px; }
+
+/* Status Checkbox-Gruppe untereinander */
+.wpem-checkgroup {
+    display: flex;
+    flex-direction: column;   /* untereinander */
+    gap: 6px;                 /* Abstand */
+}
+
+label.wpem-check {
+    display: block !important;
+}
+
+/*
+.wpem-badge {
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:999px;
+    font-size:12px;
+    line-height:1.4;
+    background:#e5e7eb;
+    color:#111827;
+}
+.wpem-badge--green { background:#dcfce7; color:#166534; }
+.wpem-badge--orange { background:#ffedd5; color:#9a3412; }
+.wpem-badge--red { background:#fee2e2; color:#991b1b; }
+ */
+
+.wpem-dot {
+    display:inline-block;
+    width:10px; height:10px;
+    border-radius:50%;
+    vertical-align:middle;
+    margin:0 4px;
+    background:#e5e7eb;       /* default: grau */
+}
+.wpem-dot--green  { border:1px solid var(--wpem-green) !important; }  /* frei */
+.wpem-dot--orange { background:var(--wpem-orange); }  /* optional */
+.wpem-dot--red    { background:var(--wpem-red); }  /* gebucht */
+.wpem-dot[title]  { cursor:help; }         /* Tooltip-Hinweis */
+
+
+.wpem-table td a.js-open { text-decoration:none; }
+.wpem-table tr.is-active { background:#fffbe6; }
+
+/* Bild-Feld */
+.wpem-picture-field { display: grid; grid-template-columns: 1fr; gap: 6px; }
+.wpem-picture-ui { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: start; }
+.wpem-picture-preview { width: 96px; aspect-ratio: 1 / 1; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.wpem-picture-preview img { display:block; width:100%; height:100%; object-fit:cover; }
+.wpem-picture-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+.wpem-form__publish { border:1px solid #e5e7eb; border-radius:8px; padding:10px 12px; }
+.wpem-form__publish legend { font-weight:600; padding:0 4px; }
+.wpem-radio-group { display:flex; gap:12px; flex-wrap:wrap; flex-direction: column}
+.wpem-radio-group label{display:block !important;}
+.wpem-radio input[type="radio"] { margin-right:6px; }
+
+
+/* Gruppen-Layout */
+.wpem-group { border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; margin-bottom:12px; }
+.wpem-group > legend { font-weight:600; padding:0 4px; }
+.wpem-group-gridlll {
+    --cols: 1;
+    display:grid;
+    grid-template-columns: repeat(var(--cols), minmax(0,1fr));
+    gap:12px;
+}
+.wpem-group.col1 .wpem-group-grid{
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0,1fr));
+}
+.wpem-group.col2 .wpem-group-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+
+}
+
+.wpem-group-grid label { display:flex; flex-direction:column; gap:6px; }
+
+/* bereits vorhandenes (Auszug) */
+.wpem-form__actions { margin-top:12px; display:flex; gap:8px; align-items:center; }
+
+.flatpickr-calendar .dayContainer{
+    padding: 10px !important;
+}
+/* Flatpickr farbige Tage – ohne Priorität, mehrere Klassen möglich */
+.flatpickr-day.wpem-cal-green { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--wpem-green) 55%, transparent);  border-radius: 6px; }
+.flatpickr-day.wpem-cal-orange{ box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--wpem-orange) 55%, transparent); border-radius: 6px; }
+.flatpickr-day.wpem-cal-red    { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--wpem-red) 60%, transparent);    border-radius: 6px; }
+
+/* optional: Cursor-Hint per data-Attr */
+.flatpickr-day[data-places],
+.flatpickr-day[data-status],
+.flatpickr-day[data-booked] { position:relative; }
+
+.wpem-pager{display:flex;gap:12px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.wpem-pager-pages .wpem-page,.wpem-pager-pages .wpem-ellipsis{display:inline-block;padding:4px 8px;margin:0 2px;border:1px solid #ccc;background:#fff;text-decoration:none;font-size:12px;border-radius:3px}
+.wpem-pager-pages .current{background:#2271b1;color:#fff;border-color:#2271b1;cursor:default}
+.wpem-pager-pages .disabled{opacity:.4;cursor:default;background:#f5f5f5}
+.wpem-pager-info{font-size:12px;opacity:.75}
+
+.wpem-error{ border:2px solid #dc2626 !important; }
+.wpem-error-msg{ color:#dc2626; font-size:12px; display:block; margin-top:2px; }
+
+
+/* Tooltip Box */
+.wpem-tooltip {
+    position: absolute;
+    z-index: 999999;
+    background: #111827;
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.45;
+    max-width: 240px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.25);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease;
+    /* Multi-line support */
+    white-space: normal;
+}
+
+.wpem-tooltip.show { opacity: 1; }
+
+/* Tooltip content layout */
+.wpem-tip-row { display: flex; align-items: center; gap: 8px; margin: 2px 0; }
+.wpem-tip-label { min-width: 100px; color: #d1d5db; } /* hellgrau für Labels */
+.wpem-tip-status { font-weight: 600; }
+
+/* kleine Statuspunkte */
+.wpem-tip-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block; flex: 0 0 8px;
+}
+
+/* Farben (verwenden deine Variablen) */
+
+.wpem-tip-dot--free   { background: var(--wpem-green); }
+.wpem-tip-dot--opt    { background: var(--wpem-orange); }
+.wpem-tip-dot--booked { background: var(--wpem-red); }
+
+.wpem-dayevents tr{
+    cursor: pointer;
+}
+.wpem-dayevents-row--this{
+    background-color: #cfcfcf;
+}
+
+.wpem-dayevents th,
+.wpem-dayevents td{
+    font-size:10px;
+    padding:2px;
+}
+.wpem-dayevents .wpem-dot,
+.wpem-dayevents .wpem-dot-black{
+    width: 6px;
+    height:6px;
+}
+.wpem-dayevents button.button{
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 10px;
+    min-height: 0;
+}
+
+.wpem-dayevents.tooltip table{
+    background-color: transparent;
+}
+
+.wpem-dayevents.tooltip table th,
+.wpem-dayevents.tooltip table td{
+    color: #fff;
+}
+.wpem-dayevents.tooltip .wpem-matrix-cell{
+    font-size:11px;
+    justify-content: flex-start;
+}
+.wpem-dayevents.tooltip .wpem-dot{
+     border:none;
+}
+/* Schwarze Kreise (leer = Umriss, gefüllt = gewählt) */
+.wpem-dot-black {
+    display:inline-block;
+    width:12px; height:12px;
+    border-radius:50%;
+    box-shadow: inset 0 0 0 2px #111; /* Umriss */
+    vertical-align:middle;
+}
+.wpem-dot-black--filled {
+    background:#111; /* gefüllt */
+    box-shadow:none;
+}
+
+.wpem-dot {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid #333;
+    margin: 0 auto;
+}
+ .wpem-dot--free {
+     /*background-color: var(--wpem-green);*/
+     border:1px solid var(--wpem-green);
+}
+.wpem-dot--opt {
+    background-color: var(--wpem-orange);
+}
+.wpem-dot--booked {
+    background-color: var(--wpem-red);
+}
+
+/* Hintergrund Overlay */
+#wpem-help-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+}
+
+/* Modal */
+#wpem-help-modal {
+    display: none;
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    z-index: 10000;
+    width: 90%;
+    max-width: 1200px;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Header */
+#wpem-help-modal .wpem-help-header {
+    background: #f0f0f1;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#wpem-help-modal .wpem-help-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#wpem-help-modal .wpem-help-header button.close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+}
+
+#wpem-help-modal .wpem-help-header button.close:hover {
+    color: #000;
+}
+
+/* Content */
+#wpem-help-modal .wpem-help-content {
+    padding: 15px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+#wpem-help-modal .wpem-help-content img{
+    max-width: 100%;
+    height: auto;
+}
+
+#wpem-help-modal .wpem-help-content ul{
+   list-style-type: disc;
+    margin:1rem;
+}
+#wpem-help-modal .wpem-help-content p,
+#wpem-help-modal .wpem-help-content li{
+    font-size:1rem;
+    margin-bottom:1rem;
+    line-height: 1.5;
+}
+
+
+/* --- Änderungshistorie im Thickbox Modal --- */
+#TB_ajaxContent{
+    width:95% !important;
+    height:100% !important;
+}
+#TB_ajaxContent .wpem-history-scroll {
+    max-height: 70vh;        /* nicht höher als 70% vom Viewport */
+    overflow: auto;           /* Scrollbalken wenn nötig */
+    padding-right: 6px;       /* Platz fürs Scrollbar */
+}
+
+#TB_ajaxContent .wpem-history-table {
+    table-layout: fixed;      /* Spaltenbreiten respektieren */
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#TB_ajaxContent .wpem-history-table th,
+#TB_ajaxContent .wpem-history-table td {
+    vertical-align: top;
+    padding: 6px 8px;
+    word-wrap: break-word;    /* lange Wörter umbrechen */
+}
+
+/* Spaltenbreiten */
+#TB_ajaxContent .wpem-col-date   { width: auto; }
+#TB_ajaxContent .wpem-col-user   { width: auto; }
+#TB_ajaxContent .wpem-col-changes { width: auto; }
+
+/* Einzelne Änderungen stacken */
+#TB_ajaxContent .wpem-change { margin-bottom: 6px; line-height: 1.4; }
+#TB_ajaxContent .wpem-field  { display: inline-block; min-width: 90px; }
+#TB_ajaxContent .wpem-arrow  { opacity: .6; padding: 0 6px; }
+#TB_ajaxContent .wpem-empty  { opacity: .6; }
+
+/* Farben nur auf Werte */
+#TB_ajaxContent .wpem-old {
+    color: #b32d2e;
+    text-decoration: line-through;
+}
+#TB_ajaxContent .wpem-new {
+    color: #008a20;
+    font-weight: 600;
+}
+#TB_ajaxContent a.wpem-new {
+    color: #008a20;
+    text-decoration: none;
+}
+#TB_ajaxContent a.wpem-new:hover {
+    text-decoration: underline;
+}

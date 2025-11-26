@@ -1,0 +1,53 @@
+// ============================
+// Variablen
+// ============================
+
+// -------------------------------
+// Farb-Variablen
+// -------------------------------
+:root {
+
+  --wpem-green:  #3dcc3d;
+  --wpem-orange: #f59e0b;
+  --wpem-red:    #ff0000;
+  --wpem-gray:   #9ca3af;
+}
+
+// Alternative Palette (optional)
+// :root {
+//   --wpem-green:  #809f65;
+//   --wpem-orange: #e6a96b;
+//   --wpem-red:    #ef4444;
+//   --wpem-gray:   #9ca3af;
+// }
+
+
+$color-text: #333;
+$color-muted: #666;
+$color-accent: #B89B61; // Löwen-Braun
+$color-border: #ddd;
+$color-bg-month: #f8f8f8;
+$color-bg-event: #fff;
+
+$font-base: "Helvetica Neue", Arial, sans-serif;
+$font-size-base: 16px;
+
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 2rem;
+
+// -------------------------------
+// Flatpickr Farbmarkierungen
+// -------------------------------
+.flatpickr-day {
+  &.wpem-cal-green  { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--wpem-green) 55%, transparent);  border-radius: 6px; }
+  &.wpem-cal-orange { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--wpem-orange) 55%, transparent); border-radius: 6px; }
+  &.wpem-cal-red    { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--wpem-red) 60%, transparent);    border-radius: 6px; }
+
+  &.flatpickr-disabled,
+  &.flatpickr-disabled:hover {
+    color: rgba(57,57,57,0.3) !important;
+  }
+}
+
