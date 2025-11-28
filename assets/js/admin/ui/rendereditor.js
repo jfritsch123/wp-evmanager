@@ -208,11 +208,11 @@ export function saveEditor(e) {
             // Liste aktualisieren & Editor neu laden
             if(res.created) {
                 loadListOnSave($f.find('input[name="fromdate"]').val());
-                loadEditor(res.id || id);
             }else{
-                loadList();
+                loadListAndFocus(res.id || id);
             }
 
+            loadEditor(res.id || id);
             // 4) 🔄 Daymap neu laden
             return post('wpem_reload_daymap', { nonce: WPEM.nonce });
         })
