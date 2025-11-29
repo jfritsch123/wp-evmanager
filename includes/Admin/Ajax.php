@@ -202,6 +202,12 @@ class Ajax
             wp_send_json_error(['message' => __('Not allowed to view this event', 'wp-evmanager')], 403);
         }
 
+        // set editable
+        $row['editable'] = (
+            Permissions::can_edit_all() ||
+            Permissions::can_edit_own((string)$row['editor'])
+        );
+
         // Normalize status spelling for UI (DB may contain a legacy misspelling)
         $from = $row['fromdate'] ?? null;
         $to   = $row['todate'] ?? null;
@@ -249,7 +255,7 @@ class Ajax
             'descr1'       => wp_kses_post($_POST['descr1'] ?? ''), // WYSIWYG
             'descr2'       => wp_kses_post($_POST['descr2'] ?? ''), // WYSIWYG
             'descr3'       => sanitize_textarea_field($_POST['descr3'] ?? ''),
-            'persons'      => (int)($_POST['persons'] ?? 0),
+            'persons'      => sanitize_text_field($_POST['persons'] ?? ''),
             'organizer'    => sanitize_text_field($_POST['organizer'] ?? ''),
             'organization' => sanitize_text_field($_POST['organization'] ?? ''),
             'email'        => sanitize_email($_POST['email'] ?? ''),

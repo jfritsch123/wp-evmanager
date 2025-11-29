@@ -91,6 +91,7 @@ export function renderList(items) {
 
     // 🧩 Tabellenzeilen
     const rows = items.map(e => {
+        console.debug('Rendering event row for', e.editable);
         const active = (state.activeId === Number(e.id)) ? ' is-active' : '';
         const notEditable = !e.editable ? ' is-readonly' : '';
         const tds = COLUMNS.map(c => `<td>${c.render(e)}</td>`).join('');
@@ -120,6 +121,41 @@ export function renderList(items) {
         await loadList();
         highlightActive();
     });
+}
+
+// nur eine Zeile aktualisieren
+function renderEventRow(e) {
+    console.debug("renderEventRow", e.editable);
+    const active = (state.activeId === Number(e.id)) ? ' is-active' : '';
+    const notEditable = !e.editable ? ' is-readonly' : '';
+    const tds = COLUMNS.map(c => `<td>${c.render(e)}</td>`).join('');
+
+    return `<tr class="${active}${notEditable}" data-id="${e.id}" ${e.editable ? '' : 'data-readonly="1"'}>
+                ${tds}
+            </tr>`;
+}
+
+export function updateEventRow(e) {
+    const $list = jQuery('#wpem-list');
+    const $tbody = $list.find('table tbody');
+
+    // Falls Liste noch nicht geladen
+    if (!$tbody.length) return;
+
+    const $existing = $tbody.find(`tr[data-id="${e.id}"]`);
+
+    if ($existing.length) {
+        // 🔄 UPDATE
+        $existing.replaceWith(renderEventRow(e));
+    } else {
+        // ➕ INSERT (am Anfang)
+        $tbody.prepend(renderEventRow(e));
+    }
+
+    // ✨ Highlight
+    const $row = $tbody.find(`tr[data-id="${e.id}"]`);
+    $row.addClass('wpem-updated');
+    setTimeout(() => $row.removeClass('wpem-updated'), 1500);
 }
 
 // 🧠 Hilfsfunktion: Standardrichtung für eine Spalte ermitteln

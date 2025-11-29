@@ -74,7 +74,7 @@ export const FORM_SCHEMA = [
         columns: 2,
         fields: [
             { id: 'booked',      type: 'yesno',       label: 'Ausgebucht (keine Buchungsanfrage möglich)' },
-            { id: 'persons',     type: 'number',      label: 'Anzahl Personen' },
+            { id: 'persons',     type: 'text',      label: 'Anzahl Personen' },
 
         ],
     },

@@ -243,7 +243,7 @@ final class EventRepository
             'descr3' => '%s',
             'short' => '%s',
             'organizer' => '%s',
-            'persons' => '%d',
+            'persons' => '%s',
             'email' => '%s',
             'tel' => '%s',
             'picture' => '%s',
@@ -276,6 +276,8 @@ final class EventRepository
         $filtered = array_intersect_key($data, $allowed);
         $formats = array_values(array_intersect_key($allowed, $filtered));
 
+        //error_log('EventRepository::insert() <pre>: ' .print_r($_POST,1). print_r($filtered, true) .print_r($formats, true));
+
         $wpdb->insert($this->table, $filtered, $formats);
         return (int)$wpdb->insert_id;
     }
@@ -303,7 +305,7 @@ final class EventRepository
             'descr3' => '%s',
             'short' => '%s',
             'organizer' => '%s',
-            'persons' => '%d',
+            'persons' => '%s',
             'email' => '%s',
             'tel' => '%s',
             'picture' => '%s',
@@ -342,6 +344,8 @@ final class EventRepository
             }
             return [$f, $fm];
         })($data, $allowed);
+
+        //error_log('EventRepository::update_if_permitted() <pre>: ' .print_r($_POST,1). print_r($filtered, true) .print_r($formats, true));
 
         $result = $wpdb->update(
             $this->table,

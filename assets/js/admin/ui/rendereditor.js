@@ -8,7 +8,7 @@ import { post } from '../data/api.js';
 import { state,readFilters} from './filterpanel.js';
 import { validateForm} from "../util/validate.js";
 import { loadHistory} from '../util/history.js';
-import { loadList,renderList,updateSortStateForMode } from './renderlist.js';
+import { loadList,renderList,updateSortStateForMode,updateEventRow } from './renderlist.js';
 import { showOverlay, hideOverlay } from '../util/helper.js';
 
 window.$ = window.jQuery;
@@ -196,6 +196,7 @@ export function saveEditor(e) {
 
     // 2) Daten sammeln
     const data = serializeForm($f);
+
     collectEditorValues(data); // WYSIWYG-Inhalte
 
     showOverlay();
@@ -205,16 +206,21 @@ export function saveEditor(e) {
         .then(res => {
             notice('updated', id ? WPEM.i18n.saved : WPEM.i18n.created);
 
-            // Liste aktualisieren & Editor neu laden
-            if(res.created) {
-                loadListOnSave($f.find('input[name="fromdate"]').val());
-            }else{
-                loadListAndFocus(res.id || id);
-            }
+            const newId = res.id || id;
 
-            loadEditor(res.id || id);
-            // 4) 🔄 Daymap neu laden
-            return post('wpem_reload_daymap', { nonce: WPEM.nonce });
+            // 🔄 Nur den betroffenen Event erneut laden
+            return post('wpem_get_event', { id: newId })
+                .then(ev => {
+
+                    // 🟢 INLINE-UPDATE in der Liste
+                    updateEventRow(ev.event);
+
+                    // 🟢 Editor neu laden
+                    loadEditor(ev.event.id);
+
+                    // 🟢 Daymap aktualisieren
+                    return post('wpem_reload_daymap', { nonce: WPEM.nonce });
+                });
         })
         .then(resp2 => {
             if (resp2 && resp2.calendarDays) {
@@ -334,7 +340,8 @@ function serializeForm($f) {
             }
         }
     });
-    o.persons = Number(o.persons || 0);
+    // persons als Text behandeln, da Datentyp auf text geändert wurde
+    o.persons = o.persons === "" ? "" : o.persons;
     o.booked  = Number(o.booked  || 0);
     return o;
 }
