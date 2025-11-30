@@ -386,6 +386,7 @@ label.wpem-check {
 
 /* Tooltip Box */
 .wpem-tooltip {
+    pointer-events: none !important;
     position: absolute;
     z-index: 999999;
     background: #111827;

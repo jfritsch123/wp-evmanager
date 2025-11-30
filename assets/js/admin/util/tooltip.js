@@ -128,26 +128,106 @@ function buildPlaces(p1, p2, p3) {
 export function attachAjaxTooltip(dayElem, dayYmd) {
     if (!dayElem) return;
 
-    let timer = null;
+    let showTimer = null;   // Verzögerung bis zum ersten Tooltip
+    let lifeTimer = null;   // Max. Lebensdauer des Tooltips
+    let isHovering = false; // Maus über dem Tag?
+    let isOpen = false;     // Tooltip gerade sichtbar?
 
-    dayElem.addEventListener('mouseenter', e => {
-        timer = setTimeout(() => {
-            Tooltip.show(`${shortSpinnerHTML()}`, e.pageX, e.pageY);
-
-            fetchDayInfo(dayYmd).then(items => {
-
-                //const html = buildDayTooltipHTML(items);
-                const html = buildDayTooltipHTML(items)
-                Tooltip.show(html);
-            }).catch(() => Tooltip.show('Fehler beim Laden'));
-        }, 200); // kleine Verzögerung gegen unnötige Requests
-    });
-
-    dayElem.addEventListener('mousemove', e => Tooltip.move(e.pageX, e.pageY));
-    dayElem.addEventListener('mouseleave', () => {
-        clearTimeout(timer);
+    function safeHide() {
+        isHovering = false;
+        isOpen = false;
+        clearTimeout(showTimer);
+        clearTimeout(lifeTimer);
         Tooltip.hide();
-    });
+    }
+
+    const onEnter = (e) => {
+        isHovering = true;
+
+        clearTimeout(showTimer);
+        showTimer = setTimeout(() => {
+            if (!isHovering) return; // Maus schon wieder weg → abbrechen
+
+            Tooltip.show(`${shortSpinnerHTML()}`, e.pageX, e.pageY);
+            isOpen = true;
+
+            // Lebensdauer: z.B. max. 5 Sekunden, dann auf jeden Fall zu
+            clearTimeout(lifeTimer);
+            lifeTimer = setTimeout(() => {
+                if (!isHovering) {
+                    safeHide();
+                }
+            }, 5000);
+
+            fetchDayInfo(dayYmd)
+                .then(items => {
+                    if (!isHovering || !isOpen) return;
+                    const html = buildDayTooltipHTML(items);
+                    Tooltip.show(html); // Position wird vom Tooltip selbst gehalten
+                })
+                .catch(() => {
+                    if (!isHovering || !isOpen) return;
+                    Tooltip.show('Fehler beim Laden');
+                });
+
+        }, 200); // kleine Verzögerung gegen nervöses „An-Aus“
+    };
+
+    const onMove = (e) => {
+        if (!isOpen) return;
+        Tooltip.move(e.pageX, e.pageY);
+    };
+
+    const onLeave = () => {
+        // Maus verlässt den Tag → Tooltip zu (mit kleinem Delay optional)
+        safeHide();
+    };
+
+    const onClickDay = () => {
+        // Bei Klick auf ein Datum (Tag auswählen) → Tooltip SOFORT weg
+        safeHide();
+    };
+
+    const onDocClick = (ev) => {
+        // Klick irgendwo anders auf der Seite → Tooltip zu
+        if (!dayElem.contains(ev.target)) {
+            safeHide();
+        }
+    };
+
+    const onScroll = () => {
+        // Bei Scrollen ist die Position eh hinfällig → Tooltip zu
+        if (isOpen) {
+            safeHide();
+        }
+    };
+
+    const onBlur = () => {
+        // Fenster verliert Fokus → Tooltip zu
+        safeHide();
+    };
+
+    // Events registrieren
+    dayElem.addEventListener('mouseenter', onEnter);
+    dayElem.addEventListener('mousemove', onMove);
+    dayElem.addEventListener('mouseleave', onLeave);
+    dayElem.addEventListener('click', onClickDay);
+
+    document.addEventListener('click', onDocClick);
+    document.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('blur', onBlur);
+
+    // Optional: Destroy-Funktion zurückgeben, falls du Daymap neu rendert
+    return function destroyTooltipHandlers() {
+        safeHide();
+        dayElem.removeEventListener('mouseenter', onEnter);
+        dayElem.removeEventListener('mousemove', onMove);
+        dayElem.removeEventListener('mouseleave', onLeave);
+        dayElem.removeEventListener('click', onClickDay);
+        document.removeEventListener('click', onDocClick);
+        document.removeEventListener('scroll', onScroll);
+        window.removeEventListener('blur', onBlur);
+    };
 }
 
 function buildDayEvents(values){
