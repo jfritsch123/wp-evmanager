@@ -16,6 +16,7 @@ final class EventRepository
     public function __construct()
     {
         $this->table = Schema::table_name();
+        Schema::maybe_add_trash_column();
     }
 
     public function get(int $id): ?array
@@ -149,6 +150,24 @@ final class EventRepository
 			    }
 		    }
 	    }
+
+        /**
+         * Papierkorb-Filter
+         * neu ab Version 1.0.0
+         * 1. Wenn NICHT gesetzt → Standard: trash = 0 oder NULL
+         * 2. Wenn gesetzt → NUR Papierkorb und alle anderen Filter deaktivieren
+         */
+        if (!empty($args['trash'])) {
+            // Papierkorb-Modus → alle anderen Filter entfernen
+            $where = [];
+            $params = [];
+            $where[] = "trash = 1";
+
+        } else {
+            // Standard-Modus → trash = 0 oder NULL
+            $where[] = "(trash = 0 OR trash IS NULL)";
+        }
+
 
         // =========================================================
         // 🧱 WHERE-Bedingungen zusammenbauen
@@ -373,6 +392,35 @@ final class EventRepository
 
         $result = $wpdb->delete($this->table, ['id' => $id], ['%d']);
         return (bool)$result;
+    }
+
+    /**
+     * Neuerung ab Version 1.0.0: Papierkorb-Funktionalität
+     * Verschiebt einen Event-Datensatz in den Papierkorb (setzt trash=1).
+     * @param int $id
+     * @param bool $can_delete_all
+     * @return bool
+     */
+    public function move_to_trash(int $id, bool $can_delete_all): bool
+    {
+        global $wpdb;
+
+        $existing = $this->get($id);
+        if (!$existing) return false;
+
+        if (!$can_delete_all && !\WP_EvManager\Security\Permissions::can_delete_own_by_editor((string)$existing['editor'])) {
+            return false;
+        }
+
+        $result = $wpdb->update(
+            $this->table,
+            ['trash' => 1, 'processed' => current_time('mysql')],
+            ['id' => $id],
+            ['%d', '%s'],
+            ['%d']
+        );
+
+        return ($result !== false);
     }
 
     /**

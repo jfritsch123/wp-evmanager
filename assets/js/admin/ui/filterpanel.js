@@ -103,6 +103,9 @@ export function readFilters(){
 
     // Ausgebucht
     state.filters.booked_only = $f.find('input[name=booked_only]').is(':checked') ? 1 : 0;
+
+    // trash
+    state.filters.trash = $f.find('input[name=trash]').is(':checked') ? 1 : 0;
 }
 
 /* ---------- Bindings ---------- */

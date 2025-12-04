@@ -98,4 +98,15 @@ final class Schema
             self::install();
         }
     }
+
+    public static function maybe_add_trash_column() {
+        global $wpdb;
+
+        $table = self::table_name();
+        $col = $wpdb->get_var("SHOW COLUMNS FROM {$table} LIKE 'trash'");
+        if (!$col) {
+            $wpdb->query("ALTER TABLE {$table} ADD COLUMN trash TINYINT(1) NOT NULL DEFAULT 0");
+        }
+    }
+
 }

@@ -24,13 +24,12 @@ class Ajax
         add_action('wp_ajax_wpem_get_event',    [$this, 'get_event']);
         add_action('wp_ajax_wpem_save_event',   [$this, 'save_event']);
         add_action('wp_ajax_wpem_delete_event', [$this, 'delete_event']);
+        add_action('wp_ajax_wpem_move_to_trash', [$this, 'move_to_trash']);
 
         add_action('wp_ajax_wpem_tooltip_dayinfo', [$this ,'tooltip_dayinfo']);
         add_action('wp_ajax_wpem_reload_daymap', [$this, 'reload_daymap']);
         add_action('wp_ajax_wpem_get_request',[$this, 'get_request']);
         add_action('wp_ajax_wpem_get_history', [$this, 'get_history']);
-
-
     }
 
     private static function sanitize_publish($v): string {
@@ -132,6 +131,7 @@ class Ajax
             'fromdate_min' => isset($_POST['fromdate_min']) ? sanitize_text_field((string)$_POST['fromdate_min']) : '',
             'fromdate_max' => isset($_POST['fromdate_max']) ? sanitize_text_field((string)$_POST['fromdate_max']) : '',
             'booked_only'  => !empty($_POST['booked_only']) ? 1 : 0,
+            'trash'         => !empty($_POST['trash']) ? 1 : 0,
 
             // NEU: Radios → einzelne Strings '0'|'1'|'2' oder ''
             'place1'       => isset($_POST['place1']) ? sanitize_text_field((string)$_POST['place1']) : '',
@@ -300,6 +300,28 @@ class Ajax
         wp_send_json_success(['id' => $id, 'deleted' => true]);
     }
 
+    public function move_to_trash(): void
+    {
+        $this->check_nonce();
+        if (!current_user_can('evm_edit_all_events') &&
+            !current_user_can('evm_edit_own_events')) {
+            wp_send_json_error(['msg' => 'Keine Berechtigung']);
+        }
+
+        $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+        if (!$id) {
+            wp_send_json_error(['msg' => 'Ungültige ID']);
+        }
+
+        $repo = new \WP_EvManager\Database\Repositories\EventRepository();
+        $ok = $repo->move_to_trash($id,Permissions::can_delete_all());
+
+        if ($ok) {
+            wp_send_json_success(['msg' => 'Event wurde in den Papierkorb verschoben']);
+        } else {
+            wp_send_json_error(['msg' => 'Fehler beim Speichern']);
+        }
+    }
     private static function sanitize_place(string $v): string
     {
         $v = is_scalar($v) ? (string) $v : '0';

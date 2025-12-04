@@ -68,10 +68,11 @@ final class Admin
             'i18n'    => [
                 'empty'       => __('Keine Events gefunden.', 'wp-evmanager'),
                 'delete'      => __('Event inwiderruflich Löschen', 'wp-evmanager'),
-                'confirm'     => __('Diesen Event wirklich löschen ?', 'wp-evmanager'),
+                'trash'       => __('Diesen Event in den Papierkorb ?', 'wp-evmanager'),
                 'created'     => __('Event angelegt.', 'wp-evmanager'),
                 'saved'       => __('Event gespeichert.', 'wp-evmanager'),
                 'deleted'     => __('Event gelöscht.', 'wp-evmanager'),
+                'trashed'     => __('Event in den Papierkorb verschoben.', 'wp-evmanager'),
                 'loading'     => __('Lade Daten …', 'wp-evmanager'),
                 'filter'      => __('Filter', 'wp-evmanager'),
                 'reset'       => __('Reset', 'wp-evmanager'),
@@ -214,9 +215,9 @@ final class Admin
                         <div class="wpem-matrix">
                             <div class="wpem-matrix-row wpem-matrix-head">
                                 <div class="wpem-matrix-cell"></div>
-                                <div class="wpem-matrix-cell wpem-matrix-col">Großer Saal</div> <!-- place1 -->
-                                <div class="wpem-matrix-cell wpem-matrix-col">Kleiner Saal</div> <!-- place2 -->
-                                <div class="wpem-matrix-cell wpem-matrix-col">Foyer</div>        <!-- place3 -->
+                                <div class="wpem-matrix-cell wpem-matrix-col">Gr</div> <!-- place1 -->
+                                <div class="wpem-matrix-cell wpem-matrix-col">Kl</div> <!-- place2 -->
+                                <div class="wpem-matrix-cell wpem-matrix-col">Fo</div>        <!-- place3 -->
                             </div>
 
                             <!-- Frei -->
@@ -277,12 +278,21 @@ final class Admin
                     </div>
                 </fieldset>
 
+                <fieldset class="wpem-special-filters">
+                    <legend>Sonderfilter</legend>
+                    <label>
+                        <input type="checkbox" class="wpem-filter-trash" name="trash">
+                        Papierkorb anzeigen
+                    </label>
+                </fieldset>
+
                 <!-- Buttons jetzt hier unten -->
                 <p class="wpem-actions">
                     <button type="button" class="button js-wpem-reset">Alle Filter zurücksetzen</button>
                     <br>
                     <button type="button" class="button button-secondary js-wpem-new">Neuanlage Event</button>
                 </p>
+
             </div>
         </div>
 

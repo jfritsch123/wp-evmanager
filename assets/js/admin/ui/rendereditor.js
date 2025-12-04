@@ -21,6 +21,17 @@ window.$ = window.jQuery;
 export function renderEditor(model, isNew) {
     const header = `<h2>${isNew ? 'Create Event' : 'Edit Event'}</h2>`;
 
+    // --- Papierkorb-Status prüfen ---
+    const isTrashed = model.trash === '1' || model.trash === 1;
+    let trashWarning = '';
+    if (isTrashed) {
+        trashWarning = `
+        <div class="wpem-lock-warning notice notice-error" 
+             style="margin:10px 0;padding:10px;border:1px solid #dc3545;">
+            <strong>Achtung:</strong> Dieses Event befindet sich im Papierkorb und kann nicht bearbeitet werden.
+        </div>
+    `;
+    }
     // --- Schreibschutz-Hinweis falls Status != Anfrage erhalten ---
     let lockWarning = '';
     const lockedStatuses = WPEM.lockedStatuses || [];
@@ -74,12 +85,56 @@ export function renderEditor(model, isNew) {
         `;
     }).join('');
 
+    /*
     const actions = `
         <div class="wpem-form__actions">
-            <button class="button button-primary js-save">${isNew ? 'Event anlegen' : 'Alles speichern'}</button>
-            ${model.id ? `<button class="button button-link-delete js-del" type="button">${WPEM.i18n.delete}</button>` : ''}
+            <button class="button button-primary js-save">
+                ${isNew ? 'Event anlegen' : 'Alles speichern'}
+            </button>
+    
+            ${
+            model.id
+                ? `<button class="button button-secondary js-move-to-trash" 
+                               type="button" 
+                               data-id="${model.id}">
+                           In den Papierkorb
+                       </button>`
+                : ''
+        }
         </div>`;
+    */
 
+
+    const actions = `
+    <div class="wpem-form__actions">
+
+        <button class="button button-primary js-save"
+                ${isTrashed ? 'disabled' : ''}>
+            ${isNew ? 'Event anlegen' : 'Alles speichern'}
+        </button>
+
+        ${model.id && !isTrashed ? `
+            <button class="button button-secondary js-move-to-trash" 
+                    type="button" 
+                    data-id="${model.id}">
+                In den Papierkorb
+            </button>
+        ` : ''}
+
+        ${model.id && isTrashed ? `
+            <button class="button button-secondary js-restore-from-trash" 
+                    type="button"
+                    data-id="${model.id}">
+                Wiederherstellen
+            </button>
+
+            <button class="button button-link-delete js-delete-final" 
+                    type="button"
+                    data-id="${model.id}">
+                Endgültig löschen
+            </button>
+        ` : ''}
+    </div>`;
     const history = `
         <div id="wpem-history-modal" style="display:none;">
             <div class="wpem-history-content"></div>
@@ -93,7 +148,8 @@ export function renderEditor(model, isNew) {
     const html = `
         ${header}
         <form id="wpem-form" data-id="${model.id||0}">
-            ${lockWarning}
+            ${trashWarning}
+            ${!isTrashed ? lockWarning : ''}            
             ${groupsHtml}
             ${actions}
         </form>            
@@ -104,6 +160,15 @@ export function renderEditor(model, isNew) {
     jQuery('#wpem-editor').html(html);
 
     Promise.resolve().then(() => {
+        if (isTrashed) {
+            // Alles deaktivieren
+            jQuery('#wpem-form :input').prop('disabled', true);
+
+            // Aber: Buttons „Wiederherstellen“ und „Endgültig löschen“ sollen nicht deaktiviert werden
+            jQuery('.js-restore-from-trash,.js-delete-final').prop('disabled', false);
+
+            return; // Keine weitere Lock-Logik anwenden
+        }
         initEditors();
         initDatePickers();
         // Signal: Editor-DOM + Picker sind da
@@ -323,6 +388,27 @@ export function deleteEditor() {
         .fail(err => notice('error', err));
 }
 
+export function moveToTrash(id) {
+    if (!confirm(WPEM.i18n.trash)) return;
+    if (!id) return;
+    showOverlay();
+    post('wpem_move_to_trash', { id })
+        .then(() => {
+            notice('updated', WPEM.i18n.trashed);
+            state.activeId = null;
+            // Falls Seite leer wurde (z.B. letzte Zeile gelöscht), auf vorige Seite springen
+            if ((state.total - 1) <= (state.per_page * (state.page - 1)) && state.page > 1) {
+                state.page = state.page - 1;
+            }
+            loadList();
+            $('#wpem-editor').empty();
+        })
+        .fail(err => notice('error', err))
+        .always(() => {
+            hideOverlay();
+        });
+}
+
 /* ---------- Helpers ---------- */
 function serializeForm($f) {
     const o = {};
@@ -381,7 +467,13 @@ export function highlightActive(){
 /* ---------- Bindings ---------- */
 
 $('#wpem-editor').on('click', '.js-save', saveEditor);
-$('#wpem-editor').on('click', '.js-del', function(e){ e.preventDefault(); deleteEditor(); });
+//$('#wpem-editor').on('click', '.js-del', function(e){ e.preventDefault(); deleteEditor(); });
+
+$('#wpem-editor').on('click', '.js-move-to-trash', function (e) {
+    e.preventDefault();
+    const id = $(this).data('id');
+    moveToTrash(id);
+});
 
 $('#wpem-editor').on('click','.wpem-dayevents .js-open',function(e){
     const id = $(this).data('id');

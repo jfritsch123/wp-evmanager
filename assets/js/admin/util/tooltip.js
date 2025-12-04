@@ -157,7 +157,7 @@ export function attachAjaxTooltip(dayElem, dayYmd) {
                 if (!isHovering) {
                     safeHide();
                 }
-            }, 5000);
+            }, 500);
 
             fetchDayInfo(dayYmd)
                 .then(items => {

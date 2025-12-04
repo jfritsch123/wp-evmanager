@@ -253,31 +253,36 @@ let reloadTimer = null;
 $filters.on('change input', 'input, select, textarea', function(e) {
     const $target = $(e.target);
     //console.debug('Filter change/input on', $target);
-    // 1️⃣ Saalbelegung ausnehmen !!!
+    // Saalbelegung ausnehmen !!!
     //if ($target.closest('.wpem-halls').length) return;
 
-    // 2️⃣ Spezielle Checkbox "Anfrage erhalten" ausnehmen
+    // Spezielle Checkbox "Anfrage erhalten" ausnehmen
     /*if ($target.is('input[name="status[]"][value="Anfrage erhalten"]')) {
         console.debug('filter anfrage erhalten');
         return;
     }*/
 
-    // 3️⃣ Date/Year/Month-Abhängigkeiten updaten – geschützt
+    // Date/Year/Month-Abhängigkeiten updaten – geschützt
     //withFilterLock(() => updateDateFilterAvailability());
 
-    // 4️⃣ filter year
+    // filter year
     if ($target.is('select[name="filter_year"]')){
         //console.debug('filter year');
         withFilterLock(() => updateDateFilterAvailability());
     }
 
-    // 5️⃣ Neuladen bei Texteingaben nur wenn enter -> siehe unten
+    // Neuladen bei Texteingaben nur wenn enter -> siehe unten
+    if($target.is('input[name="trash"]')){
+        console.debug('filter trash');
+        //return;
+    }
+    // Neuladen bei Texteingaben nur wenn enter -> siehe unten
     if ($target.is('input[type="text"], input[type="search"]')) {
         return
     }
 
     //if($target.is())
-    // 4️⃣ Alle anderen Änderungen: sofort neu laden
+    // Alle anderen Änderungen: sofort neu laden
     readFilters();
     loadList();
 });
