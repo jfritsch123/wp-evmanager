@@ -5,8 +5,8 @@ export const FORM_SCHEMA = [
         title: 'Veranstaltung',
         columns: 1,
         fields: [
-            { id: 'title', type: 'text', label: 'Titel', required: true },
-            { id: 'type', type: 'text', label: 'Veranstaltungsart' },
+            { id: 'title', type: 'text', label: 'Öffentlicher Titel (Veranstaltungskalender)', required: true },
+            { id: 'type', type: 'text', label: 'Interner Titel' },
             { id: 'descr3', type: 'textarea', label: 'Anfragetext' },
         ],
     },
@@ -78,24 +78,13 @@ export const FORM_SCHEMA = [
 
         ],
     },
-
-    /*
-    {
-        id: 'persons',
-        title: 'Personen',
-        columns: 2,
-        fields: [
-            { id: 'persons',     type: 'number',      label: 'Anzahl Personen' },
-        ],
-    },
-    */
-
     {
         id: 'publish',
         title: 'Publizieren',
         columns: 2,
         fields: [
             { id: 'publish',     type: 'publish',     label: 'Publizieren' },
+            { id: 'addinfos',   type: 'addInfosGroup',label: 'Zusatzinfos' },
         ],
     },
     {
@@ -115,7 +104,6 @@ export const FORM_SCHEMA = [
             { id: 'save', type: 'saveButton', label: ''},
         ],
     },
-
     {
         id: 'picture',
         title: 'Mediathek',

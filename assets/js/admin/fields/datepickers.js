@@ -104,8 +104,19 @@ export function initDatePickers() {
 
                 // todate übernehmen + minDate setzen (Tage davor nicht klickbar)
                 if (toEl && toEl._flatpickr) {
-                    toEl._flatpickr.set('minDate', dateStr);
-                    toEl._flatpickr.setDate(dateStr, true);
+                    const fpTo = toEl._flatpickr;
+
+                    // minDate IMMER setzen
+                    fpTo.set('minDate', dateStr);
+
+                    // bisheriges Enddatum holen (als YYYY-MM-DD)
+                    const currentTo = fpTo.input?.value || '';
+
+                    // Enddatum NUR automatisch setzen,
+                    // wenn es leer ist ODER vor dem neuen Startdatum liegt
+                    if (!currentTo || currentTo < dateStr) {
+                        fpTo.setDate(dateStr, true);
+                    }
                 }
 
                 // Nur bei Neuanlage: Matrix gemäß Belegung des gewählten Tages setzen

@@ -10,6 +10,7 @@ final class Assets
         // Admin
         // wp_register_script('datepicker', WPEVMANAGER_URL.'assets/js/admin/fields/datepickers.js', WPEVMANAGER_VERSION, true);
         wp_register_style('wpem-admin', \WPEVMANAGER_URL . 'assets/css/admin.css', [], \WPEVMANAGER_VERSION);
+        //wp_register_style('wpem-admin', \WPEVMANAGER_URL . 'assets/css/scss/admin/admin.css', [], \WPEVMANAGER_VERSION);
         wp_register_script('wpem-admin', \WPEVMANAGER_URL . 'assets/js/admin/admin.js', ['jquery'], \WPEVMANAGER_VERSION, true);
         wp_register_script('wpem-help', \WPEVMANAGER_URL . 'assets/js/admin/admin-help.js', ['jquery'], \WPEVMANAGER_VERSION, true);
 

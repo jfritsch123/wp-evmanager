@@ -1,0 +1,159 @@
+/* ================================
+   WP Event Manager – Modals
+   ================================ */
+
+/* =====================================
+   Help Modal (Overlay + Dialog)
+   ===================================== */
+
+#wpem-help-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+}
+
+#wpem-help-modal {
+  display: none;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1200px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  z-index: 10000;
+  padding: 0;
+  overflow: hidden;
+
+  /* ---------- Header ---------- */
+  .wpem-help-header {
+    background: #f0f0f1;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    button.close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      color: #666;
+
+      &:hover {
+        color: #000;
+      }
+    }
+  }
+
+  /* ---------- Content ---------- */
+  .wpem-help-content {
+    padding: 15px;
+    max-height: 70vh;
+    overflow-y: auto;
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    ul {
+      list-style-type: disc;
+      margin: 1rem;
+    }
+
+    p,
+    li {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+  }
+}
+
+/* =====================================
+   Thickbox – Änderungshistorie
+   ===================================== */
+
+#TB_ajaxContent {
+  width: 95% !important;
+  height: 100% !important;
+
+  .wpem-history-scroll {
+    max-height: 70vh;
+    overflow: auto;
+    padding-right: 6px;
+  }
+
+  .wpem-history-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+
+    th,
+    td {
+      vertical-align: top;
+      padding: 6px 8px;
+      word-wrap: break-word;
+    }
+  }
+
+  /* Spalten */
+  .wpem-col-date,
+  .wpem-col-user,
+  .wpem-col-changes {
+    width: auto;
+  }
+
+  /* Einzelne Änderungen */
+  .wpem-change {
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+
+  .wpem-field {
+    display: inline-block;
+    min-width: 90px;
+  }
+
+  .wpem-arrow {
+    opacity: .6;
+    padding: 0 6px;
+  }
+
+  .wpem-empty {
+    opacity: .6;
+  }
+
+  /* Werte-Farben */
+  .wpem-old {
+    color: #b32d2e;
+    text-decoration: line-through;
+  }
+
+  .wpem-new {
+    color: #008a20;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  a.wpem-new {
+    color: #008a20;
+  }
+}

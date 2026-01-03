@@ -1,0 +1,75 @@
+/* ================================
+   WP Event Manager – Status (final)
+   ================================ */
+
+/* ---------- Farbvariablen ---------- */
+
+:root {
+  --status-anfrage:       #9e9e9e;
+  --status-bearbeitung:  #ffcc00;
+  --status-gebucht:      #90ee90;
+  --status-vereinbarung: #228B22;
+}
+
+/* ---------- Status Textfarben ---------- */
+
+.anfrage       { color: var(--status-anfrage); }
+.bearbeitung   { color: var(--status-bearbeitung); }
+.gebucht       { color: var(--status-gebucht); }
+.vereinbarung  { color: var(--status-vereinbarung); }
+
+/* ---------- Status: aktive Auswahl (Hintergrund) ---------- */
+
+.anfrage-active {
+  background-color: var(--status-anfrage);
+  color: #fff;
+}
+
+.bearbeitung-active {
+  background-color: var(--status-bearbeitung);
+}
+
+.gebucht-active {
+  background-color: var(--status-gebucht);
+}
+
+.vereinbarung-active {
+  background-color: var(--status-vereinbarung);
+  color: #fff;
+}
+
+/* ---------- Status Dots (allgemein) ---------- */
+
+.wpem-dot {
+  display: inline-block;
+  border-radius: 50%;
+  background: #e5e7eb; /* Default grau */
+}
+
+/* Bedeutung der Dots */
+.wpem-dot--free {
+  border: 1px solid var(--wpem-green);
+}
+
+.wpem-dot--opt {
+  background: var(--wpem-orange);
+}
+
+.wpem-dot--booked {
+  background: var(--wpem-red);
+}
+
+/* Tooltip-Hinweis */
+.wpem-dot[title] {
+  cursor: help;
+}
+
+/* ---------- Status Icons ---------- */
+
+.dashicons-yes-alt {
+
+  &.anfrage       { color: var(--status-anfrage); }
+  &.bearbeitung   { color: var(--status-bearbeitung); }
+  &.gebucht       { color: var(--status-gebucht); }
+  &.vereinbarung  { color: var(--status-vereinbarung); }
+}

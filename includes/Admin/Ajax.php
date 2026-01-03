@@ -18,13 +18,20 @@ class Ajax
 
     private const PUBLISH_ALLOWED = ['0','1','2','3'];
 
+    private const ADDINFOS_ALLOWED = [
+        'Alles',
+        'Kultur im Löwen',
+    ];
+
     public function hooks(): void
     {
         add_action('wp_ajax_wpem_list_events',  [$this, 'list_events']);
         add_action('wp_ajax_wpem_get_event',    [$this, 'get_event']);
         add_action('wp_ajax_wpem_save_event',   [$this, 'save_event']);
+        add_action('wp_ajax_wpem_duplicate_event', [$this, 'duplicate_event']);
         add_action('wp_ajax_wpem_delete_event', [$this, 'delete_event']);
         add_action('wp_ajax_wpem_move_to_trash', [$this, 'move_to_trash']);
+        add_action('wp_ajax_wpem_restore_from_trash', [$this, 'restore_from_trash']);
 
         add_action('wp_ajax_wpem_tooltip_dayinfo', [$this ,'tooltip_dayinfo']);
         add_action('wp_ajax_wpem_reload_daymap', [$this, 'reload_daymap']);
@@ -35,6 +42,19 @@ class Ajax
     private static function sanitize_publish($v): string {
         $v = is_scalar($v) ? (string)$v : '0';
         return in_array($v, self::PUBLISH_ALLOWED, true) ? $v : '0';
+    }
+
+    private static function sanitize_addinfos($v): string{
+        if (!is_array($v)) {
+            return '';
+        }
+
+        $filtered = array_values(
+            array_intersect($v, self::ADDINFOS_ALLOWED)
+        );
+
+        // SET-Feld erwartet CSV oder ''
+        return $filtered ? implode(',', $filtered) : '';
     }
 
     /**
@@ -94,6 +114,8 @@ class Ajax
             wp_send_json_error(['message' => __('Not allowed', 'wp-evmanager')], 403);
         }
 
+        //error_log('AJAX list_events POST: '.print_r($_POST,true));
+
         $repo  = new EventRepository();
         $page  = max(1, (int)($_POST['page'] ?? 1));
         $pp    = max(1, min(100, (int)($_POST['per_page'] ?? 20)));
@@ -144,9 +166,12 @@ class Ajax
             'offset'       => $off,
         ];
 
+        //error_log('AJAX list_events args: '.print_r($_POST,true));
+
         [$items, $total]  = $repo->find($args);
 
         $current_user = wp_get_current_user()->user_login;
+
         // Berechtigungen ergänzen
         foreach ($items as &$event) {
             // Default: nur lesbar
@@ -214,16 +239,16 @@ class Ajax
         if (!$from) $from = date('Y-m-d');
         if (!$to || $to === '0000-00-00' || $to < $from) $to = $from;
 
-        $more = $repo->findByDateToDate($from);
+        //$more = $repo->findByDateToDate($from);
 
-        /*
+
         // Wenn eintägig → Day-Query, sonst Range-Query
         if ($from === $to) {
             $more = $repo->findByRange($from,$from);
         } else {
             $more = $repo->findByRange($from, $to);
         }
-        */
+
 
         //$event['moreEvents'] = $more;
         //wp_send_json_success(['event' => $event]);
@@ -233,8 +258,7 @@ class Ajax
         ]);
     }
 
-    public function save_event(): void
-    {
+    public function save_event(): void{
         $this->check_nonce();
 
         $id   = max(0, (int)($_POST['id'] ?? 0));
@@ -262,6 +286,7 @@ class Ajax
             'tel'          => sanitize_text_field($_POST['tel'] ?? ''),
             'picture'      => esc_url_raw($_POST['picture'] ?? ''),
             'publish'      => self::sanitize_publish($_POST['publish'] ?? '0'),
+            'addinfos'     => self::sanitize_addinfos($_POST['addinfos'] ?? []),
             'booked'       => (int)($_POST['booked'] ?? 0),
             'status'       => $statusStr,
             'place1'       => self::sanitize_place($_POST['place1'] ?? '0'),
@@ -272,6 +297,7 @@ class Ajax
             'informed'     => sanitize_text_field($_POST['informed'] ?? ''),
             'soldout'      => sanitize_text_field($_POST['soldout'] ?? ''),
         ];
+
 
         if ($id > 0) {
             $ok = $repo->update_if_permitted($id, $payload, Permissions::can_edit_all());
@@ -285,6 +311,36 @@ class Ajax
             if (!$new_id) wp_send_json_error(['message' => __('Could not create event', 'wp-evmanager')], 500);
             wp_send_json_success(['id' => (int)$new_id, 'created' => true], 201);
         }
+    }
+
+    /**
+     * Duplicates an event based on the provided ID.
+     * Validates nonce and user permissions before proceeding.
+     * Sends a JSON response indicating success or failure of the duplication process.
+     *
+     * @return void
+     */
+    public function duplicate_event(): void
+    {
+        check_ajax_referer('wpem_ajax', 'nonce');
+
+        if (!current_user_can('evm_create_events')) {
+            wp_send_json_error(['message' => 'Keine Berechtigung']);
+        }
+
+        $id = (int) ($_POST['id'] ?? 0);
+        if ($id <= 0) {
+            wp_send_json_error(['message' => 'Ungültige ID']);
+        }
+
+        $repo = new \WP_EvManager\Database\Repositories\EventRepository();
+        $result = $repo->duplicate($id);
+
+        if (empty($result)) {
+            wp_send_json_error(['message' => 'Duplizieren fehlgeschlagen']);
+        }
+
+        wp_send_json_success($result);
     }
 
     public function delete_event(): void
@@ -326,6 +382,35 @@ class Ajax
     {
         $v = is_scalar($v) ? (string) $v : '0';
         return in_array($v, ['0', '1', '2'], true) ? $v : '0';
+    }
+
+    public function restore_from_trash(): void
+    {
+        if (
+            !current_user_can('evm_edit_all_events') &&
+            !current_user_can('evm_edit_own_events')
+        ) {
+            wp_send_json_error(['message' => 'Keine Berechtigung.']);
+        }
+
+        $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
+        if ($id <= 0) {
+            wp_send_json_error(['message' => 'Ungültige ID.']);
+        }
+
+        $repo = new \WP_EvManager\Database\Repositories\EventRepository();
+
+        // Restore im Repo
+        $result = $repo->restore_from_trash($id);
+
+        if ($result && is_array($result)) {
+            wp_send_json_success([
+                'id'       => (int) $result['id'],
+                'fromdate' => $result['fromdate'] ?? null,
+            ]);
+        }
+
+        wp_send_json_error(['message' => 'Konnte Event nicht wiederherstellen.']);
     }
 
     public function tooltip_dayinfo(): void

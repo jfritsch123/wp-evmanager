@@ -74,13 +74,34 @@ class HistoryRepository
 
         // Nur diese Felder vergleichen
         $allowed = [
-            'fromdate','fromtime','todate','totime',
-            'descr1','descr2','descr3','short',
-            'organizer','persons','email','tel',
-            'picture','title','type',
-            'place1','place2','place3','soldout',
-            'processed','editor','informed','publish',
-            'status','booked','organization','note'
+            'fromdate',
+            'fromtime',
+            'todate',
+            'totime',
+            'descr1',
+            'descr2',
+            'descr3',
+            'short',
+            'organizer',
+            'persons',
+            'email',
+            'tel',
+            'picture',
+            'title',
+            'type',
+            'place1',
+            'place2',
+            'place3',
+            'soldout',
+            'processed',
+            'editor',
+            'informed',
+            'publish',
+            'addinfos',
+            'status',
+            'booked',
+            'organization',
+            'note'
         ];
 
         $compare_fields = $use_whitelist ? $allowed : array_keys($new_data);
@@ -117,14 +138,125 @@ class HistoryRepository
         }
     }
 
+    public function log_created(int $event_id, string $source = 'backend'): void
+    {
+        if ($event_id <= 0) {
+            return;
+        }
+
+        $editor = wp_get_current_user()->user_login ?? ($source === 'frontend' ? 'formular' : 'system');
+
+        $this->log_changes(
+            $event_id,
+            $editor,
+            [
+                '_created' => [
+                    null,
+                    ($source === 'frontend' ? 'Neue Anfrage über Formular' : 'Event im Backend angelegt')
+                ]
+            ]
+        );
+
+        error_log("EventRepository::log_created - ID {$event_id} - source={$source}");
+    }
+
+    /**
+     * Duplizierung eines Events in der Historie festhalten
+     * @param int $new_id
+     * @param int $source_id
+     * @param string|null $editor
+     * @return void
+     */
+    public function log_duplicated(
+        int $new_id,
+        int $source_id,
+        string $editor = null
+    ): void {
+        if ($new_id <= 0 || $source_id <= 0) {
+            return;
+        }
+
+        if ($editor === null) {
+            $editor = wp_get_current_user()->user_login ?? 'system';
+        }
+
+        // 🆕 History beim NEUEN Event
+        $this->log_changes(
+            $new_id,
+            $editor,
+            [
+                '_duplicated_from' => [
+                    null,
+                    "Dupliziert von Event #{$source_id}"
+                ]
+            ]
+        );
+
+        // 🆕 History beim ORIGINAL
+        $this->log_changes(
+            $source_id,
+            $editor,
+            [
+                '_duplicated_to' => [
+                    null,
+                    "Event wurde dupliziert → neue ID #{$new_id}"
+                ]
+            ]
+        );
+    }
+
+
+    public function log_trash(int $event_id, string $source): void
+    {
+        if ($event_id <= 0) {
+            return;
+        }
+
+        $editor = wp_get_current_user()->user_login ?? 'system';
+
+        $this->log_changes(
+            $event_id,
+            $editor,
+            [
+                '_trash' => [
+                    null,
+                    ($source === 'move-to' ? 'Event in den Papierkor verschoben' : 'Event aus dem Papierkorb wiederhergestell')
+                ]
+            ]
+        );
+
+        error_log("EventRepository::log_trash - ID {$event_id} - source={$source}");
+    }
+
+    public function log_force_delete(int $event_id): void
+    {
+        if ($event_id <= 0) {
+            return;
+        }
+
+        $editor = wp_get_current_user()->user_login ?? 'system';
+
+        $this->log_changes(
+            $event_id,
+            $editor,
+            [
+                '_deleted' => [
+                    null,
+                    'Event endgültig gelöscht'
+                ]
+            ]
+        );
+
+        error_log("EventRepository::log_deleted - ID {$event_id}");
+    }
+
     public function get_history__(int $event_id, int $limit = 20): array
     {
         if ($event_id <= 0) {
             return [];
         }
 
-        $historyRepo = new HistoryRepository();
-        return $historyRepo->get_history($event_id, $limit);
+        return $this->get_history($event_id, $limit);
     }
 
 }

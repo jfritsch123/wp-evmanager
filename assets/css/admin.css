@@ -207,7 +207,6 @@ fieldset.wpem-status label.anfrage.anfrage-active,
     background-color: var(--status-anfrage);
     color:#fff;
 }
-
 fieldset.wpem-status label.bearbeitung.bearbeitung-active,
 .wpem-form__status label.bearbeitung.bearbeitung-active{
     background-color: var(--status-bearbeitung);
@@ -220,6 +219,22 @@ fieldset.wpem-status label.vereinbarung.vereinbarung-active,
 .wpem-form__status label.vereinbarung.vereinbarung-active{
     background-color: var(--status-vereinbarung);
     color:#fff;
+}
+
+fieldset.wpem-status .dashicons.dashicons-yes-alt{
+    float:right;
+}
+fieldset.wpem-status .dashicons.dashicons-yes-alt.anfrage{
+    color: var(--status-anfrage);
+}
+fieldset.wpem-status .dashicons.dashicons-yes-alt.bearbeitung{
+    color: var(--status-bearbeitung);
+}
+fieldset.wpem-status .dashicons.dashicons-yes-alt.gebucht{
+    color: var(--status-gebucht);
+}
+fieldset.wpem-status .dashicons.dashicons-yes-alt.vereinbarung{
+    color: var(--status-vereinbarung);
 }
 
 #wpem-list .anfrage{
@@ -325,7 +340,19 @@ label.wpem-check {
 
 .wpem-table td a.js-open { text-decoration:none; }
 .wpem-table tr.is-active { background:#fffbe6; }
+.wpem-table tr.is-trashed {
+    opacity: 0.45;
+    color: #666;
+    background: #f7f7f7;
+}
 
+.wpem-table tr.is-trashed td{
+    border-color: #ffcccc;
+}
+.wpem-table tr.is-trashed a{
+    color: #666 !important;
+    text-decoration: line-through;
+}
 /* Bild-Feld */
 .wpem-picture-field { display: grid; grid-template-columns: 1fr; gap: 6px; }
 .wpem-picture-ui { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: start; }

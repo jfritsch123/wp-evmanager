@@ -3,33 +3,36 @@ import { state,readFilters } from "./filterpanel.js";
 import { showError} from "./rendereditor.js";
 import { COLUMNS } from '../util/columns.js';
 import { escapeHtml, todayYmd, renderHelpIcon, spinnerHTML} from '../util/helper.js';
-import { updateDateFilterAvailability, withFilterLock } from './filterhelper.js';
+//import { updateDateFilterAvailability, withFilterLock } from './filterhelper.js';
 import { renderPagination, bindPagination } from '../util/pagination.js';
 import { loadEditor,highlightActive } from "./rendereditor.js";
-import {setDateInputEnabled} from "./filterhelper.js";
+import {applyTrashMode} from "./filterhelper.js";
 
 window.$ = window.jQuery;
 
 export function loadList() {
+
     showLoadingSpinner();
     readFilters();
+    /*
     let fromdate_min = '';
     if (state.filters.fromdate_min) {
         fromdate_min = state.filters.fromdate_min;
     } else if (state.filters.start_ab_today) {
         fromdate_min = todayYmd();
     }
+    */
+    const payload = Object.assign({},
+        state.filters, {
+            page: state.page,
+            per_page: state.per_page,
+            //fromdate_min, // das Backend versteht das bereits
+            order_dir: state.order_dir,
+            order_by: state.order_by
+        });
 
-    //$('#wpem-list').html(`<p>${WPEM.i18n.loading}</p>`);
-
-    const payload = Object.assign({}, state.filters, {
-        page: state.page,
-        per_page: state.per_page,
-        fromdate_min, // das Backend versteht das bereits
-        order_dir: state.order_dir,
-        order_by: state.order_by
-    });
-
+    //console.debug('Lade Event-Liste mit Filter:', payload);
+    //console.trace('Lade Event-Liste mit Filter-Trace:');
     return post('wpem_list_events', payload)
         .then(data => {
             // Server sollte total, page, per_page, total_pages mitsenden
@@ -46,6 +49,7 @@ export function loadList() {
 }
 
 export function renderList(items) {
+    jQuery('#wpem-editor').html(''); // Editor leeren
     const $list = jQuery('#wpem-list');
     if (!items || !items.length) {
         $list.html(`<div class="notice notice-info"><p>${WPEM.i18n.empty}</p></div>`);
@@ -91,11 +95,11 @@ export function renderList(items) {
 
     // 🧩 Tabellenzeilen
     const rows = items.map(e => {
-        console.debug('Rendering event row for', e.editable);
         const active = (state.activeId === Number(e.id)) ? ' is-active' : '';
         const notEditable = !e.editable ? ' is-readonly' : '';
+        const isInTrash = e.trash == 1 ? ' is-trashed' : '';
         const tds = COLUMNS.map(c => `<td>${c.render(e)}</td>`).join('');
-        return `<tr class="${active}${notEditable}" data-id="${e.id}" ${e.editable ? '' : 'data-readonly="1"'}>${tds}</tr>`;
+        return `<tr class="${active}${notEditable}${isInTrash}" data-id="${e.id}" ${e.editable ? '' : 'data-readonly="1"'}>${tds}</tr>`;
     }).join('');
 
     // 📃 Pagination
@@ -124,8 +128,8 @@ export function renderList(items) {
 }
 
 // nur eine Zeile aktualisieren
-function renderEventRow(e) {
-    console.debug("renderEventRow", e.editable);
+export function renderEventRow(e) {
+    //console.debug("renderEventRow", e.editable);
     const active = (state.activeId === Number(e.id)) ? ' is-active' : '';
     const notEditable = !e.editable ? ' is-readonly' : '';
     const tds = COLUMNS.map(c => `<td>${c.render(e)}</td>`).join('');
@@ -133,29 +137,6 @@ function renderEventRow(e) {
     return `<tr class="${active}${notEditable}" data-id="${e.id}" ${e.editable ? '' : 'data-readonly="1"'}>
                 ${tds}
             </tr>`;
-}
-
-export function updateEventRow(e) {
-    const $list = jQuery('#wpem-list');
-    const $tbody = $list.find('table tbody');
-
-    // Falls Liste noch nicht geladen
-    if (!$tbody.length) return;
-
-    const $existing = $tbody.find(`tr[data-id="${e.id}"]`);
-
-    if ($existing.length) {
-        // 🔄 UPDATE
-        $existing.replaceWith(renderEventRow(e));
-    } else {
-        // ➕ INSERT (am Anfang)
-        $tbody.prepend(renderEventRow(e));
-    }
-
-    // ✨ Highlight
-    const $row = $tbody.find(`tr[data-id="${e.id}"]`);
-    $row.addClass('wpem-updated');
-    setTimeout(() => $row.removeClass('wpem-updated'), 1500);
 }
 
 // 🧠 Hilfsfunktion: Standardrichtung für eine Spalte ermitteln
@@ -168,7 +149,6 @@ function getDefaultSort(key) {
 export function updateSortStateForMode(isAnfrageModus) {
     state.order_by = isAnfrageModus ? 'ts' : 'fromdate';
     state.order_dir = getDefaultSort(state.order_by);
-    console.debug(`Sortiermodus auf ${state.order_by} ${state.order_dir} gesetzt.`);
 }
 
 // =====================================================
@@ -246,52 +226,52 @@ $(document).on('click', 'th.sortable', async function (e) {
 
 // =====================================================
 // Automatisches Neuladen bei Änderungen
-// alle Inputs außer Saalbelegung und spezieller Checkbox
+// neue Version
 // =====================================================
+
 const $filters = $('.wpem-filters-ajax');
-let reloadTimer = null;
-$filters.on('change input', 'input, select, textarea', function(e) {
+$filters.on('change input', ':input', function (e) {
+    if (e.type === 'input' && this.type === 'checkbox') return;
     const $target = $(e.target);
-    //console.debug('Filter change/input on', $target);
-    // Saalbelegung ausnehmen !!!
-    //if ($target.closest('.wpem-halls').length) return;
 
-    // Spezielle Checkbox "Anfrage erhalten" ausnehmen
-    /*if ($target.is('input[name="status[]"][value="Anfrage erhalten"]')) {
-        console.debug('filter anfrage erhalten');
+    // --- Papierkorb ---
+    if ($target.is('[name="trash"]')) {
+        state.ui.trashMode = this.checked;
+        applyTrashMode();
+        return; // ⬅️ hier bewusst abbrechen
+    }
+
+    // Wenn Papierkorb aktiv → alles andere ignorieren
+    if (state.ui.trashMode) {
         return;
-    }*/
+    }
 
-    // Date/Year/Month-Abhängigkeiten updaten – geschützt
-    //withFilterLock(() => updateDateFilterAvailability());
-
-    // filter year
-    if ($target.is('select[name="filter_year"]')){
-        //console.debug('filter year');
+    /*
+    if ($target.is('[name="filter_year"]')) {
         withFilterLock(() => updateDateFilterAvailability());
     }
+    */
 
-    // Neuladen bei Texteingaben nur wenn enter -> siehe unten
-    if($target.is('input[name="trash"]')){
-        console.debug('filter trash');
-        //return;
-    }
-    // Neuladen bei Texteingaben nur wenn enter -> siehe unten
+    // Textfelder nur bei Enter
     if ($target.is('input[type="text"], input[type="search"]')) {
-        return
+        return;
     }
-
-    //if($target.is())
-    // Alle anderen Änderungen: sofort neu laden
-    readFilters();
+    /*
+    console.debug('Filter geändert:', {
+        name: $target.attr('name'),
+        type: e.type,
+        value: $target.val()
+    });
+    */
     loadList();
 });
+
 
 // 5️⃣ Texteingaben: Nur auf ENTER reagieren
 $filters.on('keydown', 'input[type="text"], input[type="search"]', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault(); // verhindert Formular-Submit
-        readFilters();
+        //readFilters();
         loadList();
     }
 });
@@ -303,7 +283,7 @@ $filters.on('click', 'input[type="button"][name="qsend"]', function() {
         //$('.wpem-filters-ajax .js-wpem-reset').click();
         //$q.attr('placeholder','letzte Suche: ' + $q.val());
         //$q.val(''); // Suchfeld leeren
-        readFilters();
+        //readFilters();
         loadList();
     }
 });
@@ -312,7 +292,6 @@ $filters.on('click', 'input[type="button"][name="qreset"]', function() {
     const $q = $filters.find('input[name="q"]');
     if($q.val()){
         $q.val('');
-        readFilters();
         loadList();
     }
 });
@@ -325,26 +304,6 @@ $filters.on('click', 'input[type="button"][name="fromdate_max_reset"]', function
     }
 });
 
-// === Spezialfall: Anfrage erhalten ===
-$('input[name="status[]"][value="Anfrage erhalten"]').on('change', async function() {
-    const isChecked = $(this).is(':checked');
-    updateSortStateForMode(isChecked);
-    await loadList(); // wartet sauber auf Abschluss
-});
-
-$(document).on('click', '.js-wpem-date', function(e) {
-    const input = document.querySelector('input[name="fromdate_max"]');
-    const fp = input._flatpickr; // hier hängt Flatpickr immer dran
-    console.debug(fp)
-    $('.wpem-filters-ajax')[0].reset();
-    $('.wpem-filters-ajax').find('input[name="status[]"]').prop('checked', false);
-    if (fp) {
-        fp.setDate("2026-10-12", true);
-    }
-
-    readFilters();
-    loadList();
-})
 
 // =====================================================
 // 🔸 Initialzustand beim Laden der Seite

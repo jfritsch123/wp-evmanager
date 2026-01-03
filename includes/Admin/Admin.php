@@ -148,7 +148,7 @@ final class Admin
     protected function render_filters(): void {
         echo '<label><h3>Filtermöglichkeiten ' . \WP_EvManager\Admin\HelpUI::icon('filter_options') . '</h3></label>';
         ?>
-        <div class="wpem-filters-ajax wpem-filter-grid">
+        <div class="wpem-filter-grid">
             <!-- Linke Spalte -->
             <div class="wpem-col">
                 <fieldset class="wpem-searchset">
@@ -195,13 +195,34 @@ final class Admin
                     </div>
                 </fieldset>
 
-
                 <fieldset class="wpem-status">
                     <legend>Status</legend>
-                    <label class="anfrage"><input type="checkbox" name="status[]" value="Anfrage erhalten"> Anfrage erhalten</label>
-                    <label class="bearbeitung"><input type="checkbox" name="status[]" value="In Bearbeitung"> In Bearbeitung</label><br>
-                    <label class="gebucht"><input type="checkbox" name="status[]" value="Gebucht"> Gebucht</label>
-                    <label class="vereinbarung"><input type="checkbox" name="status[]" value="Vereinbarung unterzeichnet"> Vereinbarung unterzeichnet</label>
+
+                    <label class="anfrage">
+                        <input type="checkbox" name="status[]" value="Anfrage erhalten">
+                        <span class="label-text">Anfrage erhalten</span>
+                        <span class="dashicons dashicons-yes-alt anfrage" title="Anfrage erhalten"></span>
+                    </label>
+
+                    <label class="bearbeitung">
+                        <input type="checkbox" name="status[]" value="In Bearbeitung">
+                        <span class="label-text">In Bearbeitung</span>
+                        <span class="dashicons dashicons-yes-alt bearbeitung" title="In Bearbeitung"></span>
+                    </label>
+
+                    <br>
+
+                    <label class="gebucht">
+                        <input type="checkbox" name="status[]" value="Gebucht">
+                        <span class="label-text">Gebucht</span>
+                        <span class="dashicons dashicons-yes-alt gebucht" title="Gebucht"></span>
+                    </label>
+
+                    <label class="vereinbarung">
+                        <input type="checkbox" name="status[]" value="Vereinbarung unterzeichnet">
+                        <span class="label-text">Vereinbarung unterzeichnet</span>
+                        <span class="dashicons dashicons-yes-alt vereinbarung" title="Vereinbarung unterzeichnet"></span>
+                    </label>
                 </fieldset>
             </div>
 

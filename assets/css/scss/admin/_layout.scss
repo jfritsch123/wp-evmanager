@@ -1,0 +1,30 @@
+.wpem-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,.75);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 9999;
+
+  .wpem-loading {
+    margin-top: 10%;
+
+    .dashicons {
+      font-size: 60px;
+      width: 60px;
+      height: 60px;
+    }
+  }
+}
+
+.wpem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.wpem-col--right {
+  position: sticky;
+  top: 32px;
+}

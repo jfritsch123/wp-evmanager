@@ -24,6 +24,7 @@ final class EventRepository
         global $wpdb;
         $row = $wpdb->get_row(
             $wpdb->prepare("SELECT * FROM {$this->table} WHERE id = %d", $id), \ARRAY_A);
+
         $row = $this->adjustPictureDomain($row);
         return $row ?: null;
     }
@@ -77,7 +78,7 @@ final class EventRepository
         // =========================================================
         if (!empty($args['q'])) {
             $q = '%' . $wpdb->esc_like($args['q']) . '%';
-            $where[] = '(title LIKE %s OR short LIKE %s OR descr1 LIKE %s OR descr2 LIKE %s OR descr3 LIKE %s OR organizer LIKE %s OR organization LIKE %s)';
+            $where[] = '(title LIKE %s OR type LIKE %s OR descr1 LIKE %s OR descr2 LIKE %s OR descr3 LIKE %s OR organizer LIKE %s OR organization LIKE %s)';
             array_push($params, $q, $q, $q, $q, $q, $q, $q);
         }
 
@@ -229,7 +230,7 @@ final class EventRepository
         //error_log('EventRepository::find() LIMIT/OFFSET: limit=' . $limit . ' offset=' . $offset);
 
         $query = $wpdb->prepare($sql_items, ...$params_all);
-        error_log('EventRepository::find() SQL prepared: ' . $wpdb->remove_placeholder_escape($query));
+        //error_log('EventRepository::find() SQL prepared: ' . $wpdb->remove_placeholder_escape($query));
 
         $items = $wpdb->get_results($query, \ARRAY_A) ?: [];
 
@@ -280,6 +281,9 @@ final class EventRepository
             'booked' => '%d',
             'organization' => '%s',
             'note' => '%s',
+            // ✅ NEU
+            'addinfos'      => '%s',
+
             //'wpforms_entry_id' => '%d',
             //'ip' => '%s',
         ];
@@ -295,10 +299,13 @@ final class EventRepository
         $filtered = array_intersect_key($data, $allowed);
         $formats = array_values(array_intersect_key($allowed, $filtered));
 
-        //error_log('EventRepository::insert() <pre>: ' .print_r($_POST,1). print_r($filtered, true) .print_r($formats, true));
+        error_log('EventRepository::insert() <pre>: ' .print_r($_POST,1). print_r($filtered, true) .print_r($formats, true));
 
         $wpdb->insert($this->table, $filtered, $formats);
-        return (int)$wpdb->insert_id;
+        $insert_id = (int) $wpdb->insert_id;
+        $historyRepo = new \WP_EvManager\Database\Repositories\HistoryRepository();
+        $historyRepo->log_created($insert_id, 'backend');
+        return $insert_id;
     }
 
     public function update_if_permitted(int $id, array $data, bool $can_edit_all): bool
@@ -342,6 +349,8 @@ final class EventRepository
             'booked' => '%d',
             'organization' => '%s',
             'note' => '%s',
+            // ✅ NEU
+            'addinfos'      => '%s',
             // 'ts'          => '%s', // i.d.R. DB Default/Trigger nutzen
             //'ip' => '%s',
         ];
@@ -373,10 +382,121 @@ final class EventRepository
             $formats,
             ['%d']
         );
+        // 🔹 History nur loggen, wenn Update erfolgreich war
         $historyRepo = new \WP_EvManager\Database\Repositories\HistoryRepository();
-        $historyRepo->log_history($id, $filtered, $existing, true);
+
+        if ($result !== false && !empty($filtered)) {
+            $historyRepo->log_history(
+                $id,
+                $filtered,   // neue Daten (NUR was geändert wurde!)
+                $existing,   // alter DB-Zustand
+                true         // Whitelist verwenden
+            );
+        }
         return ($result !== false);
     }
+
+    /**
+     * Fügt einen duplizierten Event-Datensatz hinzu.
+     * Erwartet die Daten in einem assoziativen Array mit den Spaltennamen als Keys.
+     * Nur erlaubte Felder werden übernommen.
+     * @param array $data
+     * @return int ID des neuen Datensatzes
+     */
+    private function insert_duplicate_row(array $data): int
+    {
+        global $wpdb;
+
+        // ✅ Erlaubte Felder + Formate
+        $allowed = [
+            'fromdate' => '%s',
+            'fromtime' => '%s',
+            'todate'   => '%s',
+            'totime'   => '%s',
+            'title'    => '%s',
+            'short'    => '%s',
+            'descr1'   => '%s',
+            'descr2'   => '%s',
+            'descr3'   => '%s',
+            'organizer'=> '%s',
+            'organization' => '%s',
+            'persons'  => '%d',
+            'email'    => '%s',
+            'tel'      => '%s',
+            'type'     => '%s',
+            'place1'   => '%s',
+            'place2'   => '%s',
+            'place3'   => '%s',
+            'places'   => '%s',
+            'booked'   => '%d',
+            'publish'  => '%s',
+            'status'   => '%s',
+            'picture'  => '%s',
+            'note'     => '%s',
+            'editor'   => '%s',
+            'processed'=> '%s',
+            'trash'    => '%d',
+        ];
+
+        // 🔒 Whitelisting
+        $insert = [];
+        $formats = [];
+
+        foreach ($allowed as $key => $fmt) {
+            if (array_key_exists($key, $data)) {
+                $insert[$key] = $data[$key];
+                $formats[] = $fmt;
+            }
+        }
+
+        $ok = $wpdb->insert($this->table, $insert, $formats);
+        return $ok ? (int) $wpdb->insert_id : 0;
+    }
+
+    /**
+     * Dupliziert einen Event-Datensatz.
+     * @param int $id ID des zu duplizierenden Events
+     * @return int ID des neuen (duplizierten) Events oder 0 bei Fehler
+     */
+    public function duplicate(int $id): array
+    {
+        global $wpdb;
+
+        $original = $this->get($id);
+        if (!$original) {
+            return [];
+        }
+
+        unset(
+            $original['id'],
+            $original['ts'],
+            $original['wpforms_entry_id'],
+            $original['trash'],
+            $original['import']
+        );
+
+        $original['trash']     = 0;
+        $original['processed'] = current_time('mysql');
+        $original['editor']    = \WP_EvManager\Security\Permissions::current_login();
+
+        $original['title'] = $original['title'] . ' OPTION Kopie';
+        $original['duplicated_from'] = $id;
+
+        $newId = $this->insert_duplicate_row($original);
+        if (!$newId) {
+            return [];
+        }
+
+        // 🔹 History
+        $history = new \WP_EvManager\Database\Repositories\HistoryRepository();
+        $history->log_duplicated($newId, $id);
+
+        return [
+            'id'        => $newId,
+            'fromdate'  => $original['fromdate'] ?? null,
+        ];
+    }
+
 
     public function delete_if_permitted(int $id, bool $can_delete_all): bool
     {
@@ -389,6 +509,8 @@ final class EventRepository
         if (!$can_delete_all && !\WP_EvManager\Security\Permissions::can_delete_own_by_editor((string)$existing['editor'])) {
             return false;
         }
+        $historyRep = new \WP_EvManager\Database\Repositories\HistoryRepository();
+        $historyRep->log_force_delete($id);
 
         $result = $wpdb->delete($this->table, ['id' => $id], ['%d']);
         return (bool)$result;
@@ -419,8 +541,41 @@ final class EventRepository
             ['%d', '%s'],
             ['%d']
         );
+        $historyRepo = new \WP_EvManager\Database\Repositories\HistoryRepository();
+        $historyRepo->log_trash($id, 'move-to');
 
         return ($result !== false);
+    }
+
+    public function restore_from_trash(int $id): array|false
+    {
+        global $wpdb;
+
+        $ok = $wpdb->update(
+            $this->table,
+            [
+                'trash'     => 0,
+                'processed' => current_time('mysql'),
+            ],
+            ['id' => $id],
+            ['%d', '%s'],
+            ['%d']
+        );
+
+        if ($ok === false) {
+            return false;
+        }
+
+        $historyRepo = new \WP_EvManager\Database\Repositories\HistoryRepository();
+        $historyRepo->log_trash($id, 'restore-from');
+
+        return $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT id, fromdate FROM {$this->table} WHERE id = %d",
+                $id
+            ),
+            ARRAY_A
+        );
     }
 
     /**
@@ -467,11 +622,30 @@ final class EventRepository
         global $wpdb;
 
         $defaults = [
-            'fromdate' => null,'fromtime' => '','todate' => null,'totime' => '',
-            'descr3' => '','organizer' => '','persons' => 0,'email' => '','tel' => '',
-            'type' => '','place1' => '0','place2' => '0','place3' => '0','places' => '',
-            'title' => '','short' => '','publish' => '',
-            'booked' => 0,'status' => 'Anfrage erhalten','wpforms_entry_id' => 0
+            'fromdate' => null,
+            'fromtime' => '',
+            'todate' => null,
+            'totime' => '',
+
+            'descr3' => '',
+            'organizer' => '',
+            'persons' => '',
+            'email' => '',
+            'tel' => '',
+
+            'type' => '',
+            'place1' => '0',
+            'place2' => '0',
+            'place3' => '0',
+            'places' => '',
+
+            'title' => '',
+            'short' => '',
+            'publish' => '',
+            'booked' => 0,
+
+            'status' => 'Anfrage erhalten',
+            'wpforms_entry_id' => 0
         ];
         $row = array_merge($defaults, $data);
 
@@ -484,7 +658,7 @@ final class EventRepository
             $row,
             [
                 '%s','%s','%s','%s',        // fromdate, fromtime, todate, totime
-                '%s','%s','%d','%s','%s',   // descr3, organizer, persons, email, tel
+                '%s','%s','%s','%s','%s',   // descr3, organizer, persons, email, tel
                 '%s','%s','%s','%s','%s',   // type, place1, place2, place3, places
                 '%s','%s','%s',             // title, short, publish(int?) -> ist varchar(1) ⇒ %s sicherer
                 '%d','%s','%d'              // booked(int), status, wpforms_entry_id(int)
@@ -492,6 +666,10 @@ final class EventRepository
         );
 
         if (!$ok) return 0;
+
+        $historyRep = new \WP_EvManager\Database\Repositories\HistoryRepository();
+        $historyRep->log_created($wpdb->insert_id, 'frontend');
+
         return (int)$wpdb->insert_id;
     }
 
@@ -578,7 +756,9 @@ final class EventRepository
 
         // WHERE: nur Events berücksichtigen, die überhaupt in/ab dem Fenster liegen
         // (to >= $since) ODER (todate leer/0000-00-00 und from >= $since)
-        $where = "WHERE fromdate IS NOT NULL AND fromdate <> '0000-00-00'
+        $where = "WHERE fromdate IS NOT NULL 
+                  AND trash = 0 
+                  AND fromdate <> '0000-00-00'
                   AND (
                         COALESCE(NULLIF(todate,'0000-00-00'), fromdate) >= %s
                       )";
@@ -609,7 +789,8 @@ final class EventRepository
         $sqlPlaces = $wpdb->prepare("
             SELECT fromdate, todate, places
             FROM {$this->table}
-            WHERE status = %s
+            WHERE trash = 0 
+              AND status = %s
               AND places IS NOT NULL AND places <> ''
               AND fromdate >= %s
         ", ['Anfrage erhalten', $since]);
@@ -745,11 +926,11 @@ final class EventRepository
         }
 
         $sql = $wpdb->prepare("
-        SELECT id, title, fromtime, todate, totime, place1, place2, place3, status, places, booked
-        FROM {$this->table}
-        WHERE {$where}
-        ORDER BY fromtime ASC, id ASC
-    ", $params);
+            SELECT id, title, fromtime, todate, totime, place1, place2, place3, status, places, booked
+            FROM {$this->table}
+            WHERE {$where}
+            ORDER BY {$this->orderByEvents()}",
+        $params);
 
         return $wpdb->get_results($sql, \ARRAY_A) ?: [];
     }
@@ -771,7 +952,8 @@ final class EventRepository
         SELECT id, title, organizer, fromdate, todate, fromtime, totime,
                place1, place2, place3, places, status, booked
         FROM {$this->table}
-        WHERE fromdate <= %s
+        WHERE trash = 0
+          AND fromdate <= %s
           AND COALESCE(NULLIF(todate,'0000-00-00'), fromdate) >= %s
     ";
         $params = [$day, $day];
@@ -782,8 +964,8 @@ final class EventRepository
         }
 
         $sql .= " ORDER BY fromdate ASC, fromtime ASC, id ASC";
-        error_log("SQL only for $day: " . $sql);
-		error_log('EventRepository::findByDateToDate() SQL: ' . $wpdb->prepare($sql, $params));
+        //error_log("SQL only for $day: " . $sql);
+		//error_log('EventRepository::findByDateToDate() SQL: ' . $wpdb->prepare($sql, $params));
         return $wpdb->get_results($wpdb->prepare($sql, $params), \ARRAY_A) ?: [];
     }
 
@@ -792,11 +974,14 @@ final class EventRepository
 
         // Korrektes Overlap: [fromdate, todate*] überlappt [start, end]
         $sql = "
-        SELECT id, title, organizer, fromdate, todate, fromtime, totime, place1, place2, place3, places, status, booked
+        SELECT id, title, organizer, fromdate, todate, fromtime, totime, 
+            place1, place2, place3, places, status, booked
         FROM {$this->table}
-        WHERE fromdate <= %s
+        WHERE trash = 0
+        AND fromdate <= %s
           AND COALESCE(NULLIF(todate,'0000-00-00'), fromdate) >= %s
-    ";
+        ";
+
         $params = [$end, $start];
 
         if ($excludeId > 0) {
@@ -804,7 +989,7 @@ final class EventRepository
             $params[] = $excludeId;
         }
 
-        $sql .= " ORDER BY fromdate ASC, fromtime ASC, id ASC";
+        $sql .= " ORDER BY fromdate"; //{$this->orderByEvents()}";
         return $wpdb->get_results($wpdb->prepare($sql, $params), \ARRAY_A) ?: [];
     }
 
@@ -856,7 +1041,7 @@ final class EventRepository
            AND fromdate <= %s
            AND publish IS NOT NULL 
            AND publish <> '0'
-         ORDER BY fromdate ASC, fromtime ASC",
+         ORDER BY {$this->orderByEvents()}",
             $since->format('Y-m-d'),
             $until->format('Y-m-d')
         );
@@ -902,6 +1087,21 @@ final class EventRepository
         ];
     }
 
+    /**
+     * Zentrale ORDER-BY-Logik für Event-Listen
+     * - Original + Duplikate direkt hintereinander
+     * - stabile Sortierung
+     */
+    private function orderByEvents(): string
+    {
+        return "
+        COALESCE(duplicated_from, id) ASC,
+        duplicated_from IS NOT NULL ASC,
+        fromdate ASC,
+        fromtime ASC,
+        id ASC
+    ";
+    }
 
 }
 

@@ -1,3 +1,5 @@
+import {state,statusActiveClasses} from './filterpanel.js';
+import {loadList} from './renderlist.js';
 export function enableToggleableHallRadios(){
     const wrap = document.querySelector('.wpem-filters-ajax .wpem-halls');
     if (!wrap) return;
@@ -146,7 +148,7 @@ export const withFilterLock = (() => {
         try {
             fn(); // ✅ ausführen
         } catch (err) {
-            console.error('[withFilterLock] error:', err);
+            //console.error('[withFilterLock] error:', err);
         } finally {
             locked = false; // 🔓 wieder freigeben
         }
@@ -155,6 +157,7 @@ export const withFilterLock = (() => {
 
 
 // not used currently
+/*
 export function updateDateFilterAvailability(clearStaus = false) {
     return; // alle filter kombinierbar, darum hier abbrechen
 
@@ -227,3 +230,65 @@ export function updateDateFilterAvailability(clearStaus = false) {
     //enableAbToday();
     resetYearMonth(false);
 }
+*/
+
+export function applyTrashMode(fromdate = null) {
+    const isTrash = state.ui.trashMode;
+    const $filters = $('.wpem-filters-ajax');
+
+    // 1) Trash-State
+    state.filters.trash = isTrash ? 1 : 0;
+    $filters.find('input[name="trash"]').prop('checked', isTrash);
+
+    if (isTrash) {
+        // -------------------------
+        // ALLE ANDEREN FILTER RESETTEN
+        // -------------------------
+        $filters.find(':input').not('[name="trash"]').each(function () {
+            const $el = $(this);
+            const type = this.type;
+
+            if (type === 'checkbox' || type === 'radio') {
+                $el.prop('checked', false);
+            } else if (this.tagName === 'SELECT') {
+                this.selectedIndex = 0; // erste Option
+            } else {
+                $el.val('');
+            }
+        });
+
+        // Status-Filter: alle Active-Klassen entfernen
+        $filters.find('.wpem-status label').removeClass(Object.values(statusActiveClasses));
+
+        // State-Filter komplett leeren (außer trash)
+        Object.keys(state.filters).forEach(key => {
+            if (key !== 'trash') {
+                state.filters[key] = '';
+            }
+        });
+
+        // Sonderfall: fromdate setzen (optional)
+        if (fromdate) {
+            state.filters.fromdate_max = fromdate;
+        }
+
+    }
+
+    // 2) Filterfelder deaktivieren / aktivieren
+    $filters
+        .find(':input')
+        .not('[name="trash"]')
+        .prop('disabled', isTrash);
+
+    // 3) Visuellen Modus setzen
+    $('.wpem-list-container')
+        .toggleClass('trash-mode', isTrash);
+
+    // 4) Pagination & Selection resetten
+    state.page = 1;
+    state.activeId = null;
+
+    // 5) Liste neu laden
+    loadList();
+}
+

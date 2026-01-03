@@ -95,7 +95,7 @@ final class WPFormsSubmission
             // Textfelder
             'descr3'    => $this->sanitize_text($get( (int)$this->map['descr3']  )),   // ID 19
             'organizer' => $this->sanitize_text($get( (int)$this->map['organizer'] )), // ID 15
-            'persons'   => $this->sanitize_int($get( (int)$this->map['persons']   )),  // ID 13
+            'persons'   => $this->sanitize_text($get( (int)$this->map['persons']  )),  // ID 13
             'email'     => $this->sanitize_email($get( (int)$this->map['email']   )),  // ID 17
             'tel'       => $this->sanitize_text($get( (int)$this->map['tel']     )),   // ID 16
             'type'      => $this->sanitize_text($get( (int)$this->map['type']    )),   // ID 11

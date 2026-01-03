@@ -12,7 +12,7 @@ final class DBTools
     {
         global $wpdb;
 
-        $current_db   = DB_NAME;
+        $current_db   = DB_NAME; // Aktuelle WP-Datenbank in wp-config.php
         $target_table = $wpdb->prefix . 'evmanager';
         $source_db    = 'wp_loewensaal';
         $source_table = 'wp_evmanager';

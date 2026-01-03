@@ -1,0 +1,96 @@
+/* ================================
+   WP Event Manager – Saalbelegung / Matrix
+   ================================ */
+
+.wpem-form__place-matrix {
+  grid-column: 1 / -1;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+
+  legend {
+    font-weight: 600;
+    padding: 0 4px;
+  }
+}
+
+.wpem-place-legend {
+  font-size: 12px;
+  opacity: .8;
+  margin-top: 8px;
+}
+
+/* Grid */
+.wpem-matrix {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+/* erlaubt Grid-basierte "Zeilen" */
+.wpem-matrix-row {
+  display: contents;
+}
+
+.wpem-matrix-head {
+  .wpem-matrix-cell {
+    font-weight: 600;
+  }
+}
+
+.wpem-matrix-cell {
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
+.wpem-matrix-label {
+  justify-content: flex-start;
+}
+
+.wpem-matrix-col {
+  text-align: center;
+}
+
+/* -----------------------------
+   Radio-Buttons (Zustände)
+   ----------------------------- */
+
+.wpem-matrix {
+  input[type="radio"] {
+    display: none;
+  }
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* frei */
+  input[type="radio"][value="0"]:checked + label {
+    border: 1px solid var(--wpem-green);
+  }
+
+  /* optional */
+  input[type="radio"][value="1"]:checked + label {
+    background: var(--wpem-orange);
+    color: #fff;
+  }
+
+  /* gebucht */
+  input[type="radio"][value="2"]:checked + label {
+    background: var(--wpem-red);
+    color: #fff;
+  }
+
+  input[type="radio"] + label:hover {
+    border-color: #6b7280;
+  }
+}

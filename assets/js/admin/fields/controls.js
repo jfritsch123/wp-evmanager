@@ -196,9 +196,8 @@ export function fieldPublishGroup(name, val) {
     const v = String(val ?? '0');
     const opts = [
         ['0','Nichts'],
-        ['1','Nur Titel'],
-        ['2','Alles'],
-        ['3','Kultur im Löwen'],
+        ['1','Nur öffentlicher Titel'],
+        ['2','Öffentlicher Titel + Beschreibung + Kartenvorverkauf + Bild'],
     ];
     const radio = ([value,label]) => {
         const id = `${name}_${value}`;
@@ -208,6 +207,40 @@ export function fieldPublishGroup(name, val) {
             </label>`;
     };
     return `<div class="wpem-radio-group">${opts.map(radio).join('')}</div>`;
+}
+
+/**
+ * Zusatzinfos-Gruppe (Checkboxen)
+ * @param current
+ * @returns {string}
+ */
+export function fieldAddInfosGroup(current) {
+    // current kann String ("A,B") oder Array sein
+    const allowed = [
+        'Kultur im Löwen',
+    ];
+    const curArr = Array.isArray(current)
+        ? current.map(String)
+        : String(current || '').split(',').map(s => s.trim()).filter(Boolean);
+
+    const isChecked = (label) => curArr.includes(label);
+
+    const box = (label) => {
+        const id = 'status_' + label.replace(/\s+/g,'_');
+        return `
+      <label class="wpem-check">
+        <input type="checkbox" id="${id}" name="addinfos[]" value="${escapeHtml(label)}" ${isChecked(label)?'checked':''}>
+        <span>${escapeHtml(label)}</span>
+      </label>`;
+    };
+
+    return `
+    <fieldset class="wpem-form__status">
+      <legend>Zusatzinfos</legend>
+      <div class="wpem-checkgroup">
+        ${allowed.map(box).join('')}
+      </div>
+    </fieldset>`;
 }
 
 /**
@@ -250,26 +283,79 @@ export function dot(val, isAnfrage, places, roomLabel) {
     return '<span class="wpem-dot"></span>';
 }
 
+function formatDate(ymd) {
+    const [y,m,d] = ymd.split('-');
+    return `${d}.${m}.${y}`;
+}
 export function fieldDayEvents(values){
 
-    const list = values.dayEvents || [];
+    //const list = values.dayEvents || [];
     const date = values.fromdate || '';
+
+    /*
     const rows = list.map(ev => {
         //console.debug('fieldDayEvents',ev);
         const isAnfrage = ev.status === 'Anfrage erhalten';
         //console.debug('isAnfrage',isAnfrage);
         const isThisEvent = String(ev.id) === String(values.id);
-        const cls = isThisEvent ? ' wpem-dayevents-row--this' : '';
+        const isTrash = parseInt(values.trash, 10) === 1;
+        const cls = isThisEvent
+            ? ' wpem-dayevents-row--this'
+            : (isTrash ? ' is-trashed' : 'js-open');
+
         return `
-          <tr data-id="${ev.id}" class="js-open ${cls}">
+          <tr data-id="${ev.id}" class="${cls}">
             <td>${dot(ev.place1, isAnfrage, ev.places, 'Großer Saal')}</td>
             <td>${dot(ev.place2, isAnfrage, ev.places, 'Kleiner Saal')}</td>
             <td>${dot(ev.place3, isAnfrage, ev.places, 'Foyer')}</td>
             <td>${dot(ev.booked, isAnfrage, ev.places, 'Ausgebucht')}</td>
 
             <td>${escapeHtml(ev.title || '(ohne Titel)')}</td>
+            <td>${escapeHtml(ev.fromdate)}</td>
             <td></td>
           </tr>`;
+    }).join('');
+    */
+    const list = values.dayEvents || [];
+
+    // Gruppieren nach fromdate
+    const grouped = {};
+    list.forEach(ev => {
+        const d = ev.fromdate || 'unknown';
+        if (!grouped[d]) grouped[d] = [];
+        grouped[d].push(ev);
+    });
+
+    const rows = Object.keys(grouped).map(day => {
+
+        const dayRows = grouped[day].map(ev => {
+            const isAnfrage = ev.status === 'Anfrage erhalten';
+            const isThisEvent = String(ev.id) === String(values.id);
+            const isTrash = parseInt(values.trash, 10) === 1;
+
+            const cls = isThisEvent
+                ? 'wpem-dayevents-row--this'
+                : (isTrash ? 'is-trashed' : 'js-open');
+
+            return `
+          <tr data-id="${ev.id}" class="${cls}">
+            <td>${dot(ev.place1, isAnfrage, ev.places, 'Großer Saal')}</td>
+            <td>${dot(ev.place2, isAnfrage, ev.places, 'Kleiner Saal')}</td>
+            <td>${dot(ev.place3, isAnfrage, ev.places, 'Foyer')}</td>
+            <td>${dot(ev.booked, isAnfrage, ev.places, 'Ausgebucht')}</td>
+            <td>${escapeHtml(ev.title || '(ohne Titel)')}</td>
+            <td></td>
+          </tr>`;
+        }).join('');
+
+        return `
+      <tr class="wpem-dayevents-date">
+        <td colspan="6">
+          📅 ${formatDate(day)}
+        </td>
+      </tr>
+      ${dayRows}
+    `;
     }).join('');
 
 
@@ -281,6 +367,7 @@ export function fieldDayEvents(values){
             <tr>
               <th>Gr</th><th>Kl</th><th>Fo</th><th>A</th>
               <th>Titel</th>
+              <th>Startdatum</th>
               <th style="text-align: right;"><button type="button" class="button js-new-same-day" data-date="${escapeHtml(date)}">+ Neu</button></th>
             </tr>
           </thead>
@@ -299,7 +386,7 @@ export function fieldHistoryLoader(id,isNew){
 
 export function fieldRequestLoader(id,model,isNew){
     if (isNew) return'';
-    console.debug('fieldRequestLoader',model);
+    //console.debug('fieldRequestLoader',model);
     const entryId = model.wpforms_entry_id;
     const logId = model.wp_evmanager_log_id;
     // Nur anzeigen, wenn wirklich eine gültige ID > 0 vorhanden ist

@@ -17,7 +17,7 @@ const TooltipCache = {};
  */
 export function fetchDayInfo(day) {
     if (!day) return Promise.resolve([]);
-    if (TooltipCache[day]) return Promise.resolve(TooltipCache[day]);
+    //if (TooltipCache[day]) return Promise.resolve(TooltipCache[day]);
 
     return jQuery.post(WPEM.ajaxurl, {
         action: 'wpem_tooltip_dayinfo',
@@ -31,7 +31,7 @@ export function fetchDayInfo(day) {
         }
         throw new Error('Keine Daten');
     }).catch(err => {
-        console.warn('Tooltip AJAX Fehler', err);
+        //console.warn('Tooltip AJAX Fehler', err);
         return [];
     });
 }
@@ -231,7 +231,6 @@ export function attachAjaxTooltip(dayElem, dayYmd) {
 }
 
 function buildDayEvents(values){
-    console.debug('buildDayEvents',values);
     const list = values || [];
     const date = values.fromdate || '';
     const rows = list.map(ev => {
@@ -274,7 +273,7 @@ document.addEventListener('mousedown', e => {
     // Tooltip schließen, wenn irgendwo im Kalender geklickt wird
     if (e.target.closest('.flatpickr-day')) {
         if (window.Tooltip && typeof Tooltip.hide === 'function') {
-            console.debug('Tooltip hide on day click', window.Tooltip);
+            //console.debug('Tooltip hide on day click', window.Tooltip);
             Tooltip.hide();
         }
     }

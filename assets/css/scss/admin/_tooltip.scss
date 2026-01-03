@@ -1,0 +1,23 @@
+.wpem-tooltip {
+  position: absolute;
+  z-index: 999999;
+  background: #111827;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  max-width: 240px;
+  opacity: 0;
+  transition: opacity .15s ease;
+  pointer-events: none;
+
+  &.show {
+    opacity: 1;
+  }
+}
+
+.wpem-tip-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}

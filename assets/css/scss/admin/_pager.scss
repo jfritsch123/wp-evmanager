@@ -1,0 +1,43 @@
+/* ================================
+   WP Event Manager – Pager
+   ================================ */
+
+.wpem-pager {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.wpem-pager-pages {
+  .wpem-page,
+  .wpem-ellipsis {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 0 2px;
+    border: 1px solid #ccc;
+    background: #fff;
+    text-decoration: none;
+    font-size: 12px;
+    border-radius: 3px;
+  }
+
+  .current {
+    background: #2271b1;
+    color: #fff;
+    border-color: #2271b1;
+    cursor: default;
+  }
+
+  .disabled {
+    opacity: .4;
+    cursor: default;
+    background: #f5f5f5;
+  }
+}
+
+.wpem-pager-info {
+  font-size: 12px;
+  opacity: .75;
+}
