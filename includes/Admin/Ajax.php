@@ -241,14 +241,12 @@ class Ajax
 
         //$more = $repo->findByDateToDate($from);
 
-
         // Wenn eintägig → Day-Query, sonst Range-Query
         if ($from === $to) {
             $more = $repo->findByRange($from,$from);
         } else {
             $more = $repo->findByRange($from, $to);
         }
-
 
         //$event['moreEvents'] = $more;
         //wp_send_json_success(['event' => $event]);

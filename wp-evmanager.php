@@ -3,7 +3,7 @@
 /**
  * Plugin Name: WP EvManager
  * Description: Klassenbasiertes Event-Plugin (Admin/Frontend getrennt).
- * Version: 1.0.0
+ * Version: 1.2.0
  * Author: Dein Name
  * Text Domain: wp-evmanager
  * Domain Path: /languages

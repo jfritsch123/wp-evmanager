@@ -35,7 +35,7 @@ final class Plugin
         // Admin-spezifische Hooks
         if (is_admin()) {
 
-            add_action('admin_init', [\WP_EvManager\Admin\AdminMenu::class, 'register_settings']);
+            //add_action('admin_init', [\WP_EvManager\Admin\AdminMenu::class, 'register_settings']);
 
             $this->admin->hooks();
             if ($this->adminAjax === null) {

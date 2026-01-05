@@ -145,6 +145,106 @@ final class Admin
         echo '</div>'; // .wrap
     }
 
+    public static function render_db_page(): void
+    {
+        ?>
+        <div class="wrap wpem-admin-db">
+            <h1><?php esc_html_e('Eventmanager Datenbank', 'wp-evmanager'); ?></h1>
+
+            <p><?php esc_html_e('Hier kannst du Tools für die Eventmanager-Datenbank nutzen.', 'wp-evmanager'); ?></p>
+
+            <h2><?php esc_html_e('Import', 'wp-evmanager'); ?></h2>
+            <form method="post">
+                <?php wp_nonce_field('wpem_db_import_action', 'wpem_db_nonce'); ?>
+                <p>
+                    <button type="submit" name="wpem_db_import" class="button button-primary"
+                            onclick="return confirm('Achtung: Bestehende Daten werden überschrieben. Fortfahren?');">
+                        <?php esc_html_e('Datenbank Import', 'wp-evmanager'); ?>
+                    </button>
+                    <button type="submit" name="wpem_db_dryrun" class="button">
+                        <?php esc_html_e('Dry Run (Simulation)', 'wp-evmanager'); ?>
+                    </button>
+                </p>
+            </form>
+
+            <h2><?php esc_html_e('Datenbank Tools', 'wp-evmanager'); ?></h2>
+            <form method="post">
+                <?php wp_nonce_field('wpem_db_tools_action', 'wpem_db_tools_nonce'); ?>
+                <p>
+                    <button type="submit" name="wpem_db_create_history" class="button button-secondary"
+                            onclick="return confirm('Soll die History-Tabelle neu erzeugt werden? (bestehende Daten bleiben erhalten)');">
+                        <?php esc_html_e('History-Tabelle erzeugen', 'wp-evmanager'); ?>
+                    </button>
+                    <button type="submit" name="wpem_db_clear" class="button button-secondary"
+                            onclick="return confirm('Achtung: Alle Events werden gelöscht. Fortfahren?');">
+                        <?php esc_html_e('Events leeren', 'wp-evmanager'); ?>
+                    </button>
+                </p>
+            </form>
+        </div>
+        <?php
+
+        // --- POST-Aktionen: Import ---
+        if (
+                isset($_POST['wpem_db_nonce']) &&
+                wp_verify_nonce($_POST['wpem_db_nonce'], 'wpem_db_import_action')
+        ) {
+            $result = null;
+
+            if (isset($_POST['wpem_db_import'])) {
+                $result = \WP_EvManager\Database\DBTools::import_from_loewensaal(false);
+            } elseif (isset($_POST['wpem_db_dryrun'])) {
+                $result = \WP_EvManager\Database\DBTools::import_from_loewensaal(true);
+            }
+
+            if (!empty($result)) {
+                $class = $result['success'] ? 'notice-success' : 'notice-error';
+                echo '<div class="notice ' . esc_attr($class) . '"><p>' . esc_html($result['message']) . '</p></div>';
+            }
+        }
+
+        // --- POST-Aktionen: DB Tools ---
+        if (
+                isset($_POST['wpem_db_tools_nonce']) &&
+                wp_verify_nonce($_POST['wpem_db_tools_nonce'], 'wpem_db_tools_action')
+        ) {
+            global $wpdb;
+
+            // History-Tabelle anlegen
+            if (isset($_POST['wpem_db_create_history'])) {
+                require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+                $charset_collate = $wpdb->get_charset_collate();
+                $history_table = $wpdb->prefix . 'evmanager_history';
+
+                $sql_history = "CREATE TABLE {$history_table} (
+                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                event_id BIGINT UNSIGNED NOT NULL,
+                editor VARCHAR(255) NOT NULL,
+                changed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                changes JSON NOT NULL,
+                PRIMARY KEY (id),
+                KEY idx_event_id (event_id),
+                KEY idx_changed_at (changed_at)
+            ) {$charset_collate};";
+
+                dbDelta($sql_history);
+
+                echo '<div class="notice notice-success"><p>' . esc_html__('History-Tabelle erzeugt oder aktualisiert.', 'wp-evmanager') . '</p></div>';
+            }
+
+            // Events leeren
+            if (isset($_POST['wpem_db_clear'])) {
+                $table = $wpdb->prefix . 'evmanager';
+                $wpdb->query("TRUNCATE TABLE {$table}");
+                echo '<div class="notice notice-success"><p>' . esc_html__('Alle Events wurden gelöscht.', 'wp-evmanager') . '</p></div>';
+                $table = $wpdb->prefix . 'evmanager_history';
+                $wpdb->query("TRUNCATE TABLE {$table}");
+                echo '<div class="notice notice-success"><p>' . esc_html__('Alle History Einträge wurden gelöscht.', 'wp-evmanager') . '</p></div>';
+            }
+        }
+    }
+
     protected function render_filters(): void {
         echo '<label><h3>Filtermöglichkeiten ' . \WP_EvManager\Admin\HelpUI::icon('filter_options') . '</h3></label>';
         ?>
@@ -331,6 +431,48 @@ final class Admin
         <?php
     }
 
+    public static function render_settings_page(): void
+    {?>
+        <h1><?php esc_html_e('Eventmanager Einstellungen', 'wp-evmanager'); ?></h1>
+        <h2><?php esc_html_e('Schreibschutz-Einstellungen', 'wp-evmanager'); ?></h2>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('wpem_settings');
+            $locked_statuses = (array) get_option('wpem_locked_statuses', []);
+            $all_statuses = ['Anfrage erhalten','In Bearbeitung','Gebucht','Vereinbarung unterzeichnet'];
+            ?>
+            <?php foreach ($all_statuses as $s): ?>
+                <label>
+                    <input type="checkbox" name="wpem_locked_statuses[]" value="<?php echo esc_attr($s); ?>"
+                            <?php checked(in_array($s, $locked_statuses, true)); ?>>
+                    <?php echo esc_html($s); ?>
+                </label><br>
+            <?php endforeach; ?>
+            <h2><?php esc_html_e('Anzeige-Einstellungen', 'wp-evmanager'); ?></h2>
+            <?php
+            // --- Dropdown für "Events ab Jahr" ---
+            $year_limit = get_option('wpem_year_limit', 'all'); // Default = Alle Jahre
+            $repo = new \WP_EvManager\Database\Repositories\EventRepository();
+            $ym   = $repo->get_years_months_named(false);
+            $years = $ym['years'] ?? [];
+            echo 'year-limit=' . esc_html($year_limit);
+            ?>
+            <label for="wpem_year_limit"><?php esc_html_e('Events anzeigen ab Jahr:', 'wp-evmanager'); ?></label>
+            <select name="wpem_year_limit" id="wpem_year_limit">
+                <option value="all" <?php selected($year_limit, 'all'); ?>>
+                    <?php esc_html_e('Alle Jahre', 'wp-evmanager'); ?>
+                </option>
+                <?php foreach ($years as $y): ?>
+                    <option value="<?php echo esc_attr($y); ?>" <?php selected((string)$year_limit, (string)$y); ?>>
+                        <?php echo esc_html($y); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
+            <?php submit_button(); ?>
+        </form>
+        <?php
+    }
     protected function render_editor_list(): void {
         global $wpdb;
         $table = Schema::table_name();

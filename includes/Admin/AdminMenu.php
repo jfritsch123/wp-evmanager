@@ -9,32 +9,7 @@ final class AdminMenu
 {
     public static function init(): void
     {
-
         add_action('admin_menu', [__CLASS__, 'register_menu']);
-
-        add_action('admin_menu', function () {
-            $user = wp_get_current_user();
-
-            if (in_array('event_manager_all', (array) $user->roles, true)) {
-                global $menu;
-
-                $allowed = [
-                    'wp-evmanager', // dein Plugin
-                    'index.php',    // Dashboard (optional)
-                ];
-
-                foreach ($menu as $key => $item) {
-                    if (!in_array($item[2], $allowed, true)) {
-                        remove_menu_page($item[2]);
-                    }
-                }
-                // 🔹 Untermenü unter deinem Plugin "wp-evmanager"
-                remove_submenu_page('wp-evmanager', 'wpem-db');          // EvManager DB
-                remove_submenu_page('wp-evmanager', 'wpem-roles');       // Rollen & Rechte
-                remove_submenu_page('wp-evmanager', 'wpem-help');       // Rollen & Rechte
-
-            }
-        }, 999);
 
     }
 
@@ -67,7 +42,7 @@ final class AdminMenu
         add_menu_page(
             __('EvManager', 'wp-evmanager'),
             __('EvManager', 'wp-evmanager'),
-            'read', // Anzeige, feingranular prüfen wir innerhalb von render_page()
+            'evm_read_events', // Anzeige, feingranular prüfen wir innerhalb von render_page()
             'wp-evmanager',
             [$admin, 'render_page'],
             'dashicons-calendar',
@@ -108,7 +83,7 @@ final class AdminMenu
             'wp-evmanager',
             __('Einstellungen', 'wp-evmanager'),
             __('Einstellungen', 'wp-evmanager'),
-            'manage_options',
+            'evm_manage_settings',
             'wpem-settings',
             [__CLASS__, 'render_settings_page']
         );
@@ -122,8 +97,6 @@ final class AdminMenu
             'wpem-roles',
             [__CLASS__, 'render_roles_page']
         );
-
-
     }
 
     /**

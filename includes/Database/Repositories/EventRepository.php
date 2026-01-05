@@ -16,7 +16,6 @@ final class EventRepository
     public function __construct()
     {
         $this->table = Schema::table_name();
-        Schema::maybe_add_trash_column();
     }
 
     public function get(int $id): ?array
