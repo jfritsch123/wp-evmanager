@@ -4,6 +4,7 @@ namespace WP_EvManager\Database\Repositories;
 
 use WP_EvManager\Database\Schema;
 use WP_EvManager\Security\Permissions;
+use WP_EvManager\Settings\ManagerSettings;
 
 defined('ABSPATH') || exit;
 
@@ -102,7 +103,7 @@ final class EventRepository
         }
 
         // Jahreslimit aus Settings (immer aktiv)
-        $year_limit = get_option('wpem_year_limit', 'all');
+        $year_limit      = ManagerSettings::get_value('year_limit', 'all');
         if ($year_limit !== 'all' && ctype_digit((string) $year_limit)) {
             $where[]  = 'YEAR(fromdate) >= %d';
             $params[] = (int) $year_limit;
@@ -111,7 +112,7 @@ final class EventRepository
         /*
         // Wenn kein Bereich gesetzt → Jahrbegrenzung aus Settings
         if (empty($args['fromdate_min']) && empty($args['fromdate_max'])) {
-            $year_limit = get_option('wpem_year_limit', 'all');
+            $year_limit      = ManagerSettings::get_value('year_limit', 'all');
             if ($year_limit !== 'all' && ctype_digit((string) $year_limit)) {
                 $where[]  = 'YEAR(fromdate) >= %d';
                 $params[] = (int) $year_limit;
@@ -677,7 +678,7 @@ final class EventRepository
         $t = $this->table;
         // Limit aus Settings
         if( $year_limit === true ){
-            $year_limit = get_option('wpem_year_limit', 'all');
+            $year_limit = ManagerSettings::get_value('year_limit', 'all');
             $year_limit = ($year_limit !== 'all') ? (int)$year_limit : null;
         }
         else{
@@ -1101,6 +1102,5 @@ final class EventRepository
         id ASC
     ";
     }
-
 }
 

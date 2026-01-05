@@ -61,7 +61,6 @@ final class Roles
                 $role->add_cap($cap);
             }
             $role->add_cap('upload_files'); // ebenfalls erlauben
-            //$role->add_cap('manage_options'); // damit Einstellungen gesehen werden können
         }
 
         // Event Manager OWN: nur eigene
@@ -73,7 +72,6 @@ final class Roles
             $role->add_cap('evm_manage_help');
             $role->add_cap('evm_manage_settings');
             $role->add_cap('upload_files'); // damit auch eigene Bilder hochgeladen werden können
-            //$role->add_cap('manage_options'); // damit Einstellungen gesehen werden können
         }
     }
 
