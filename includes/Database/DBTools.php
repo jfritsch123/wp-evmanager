@@ -250,6 +250,31 @@ final class DBTools
                     : null;
             },
 
+            // Regel 5: organisation = "Kultur im Löwen" → addinfos enthält "Kultur im Löwen"
+            function($wpdb, $table) {
+
+                $affected = $wpdb->query($wpdb->prepare("
+                UPDATE `{$table}`
+                SET addinfos = 
+                    CASE
+                        WHEN addinfos IS NULL OR addinfos = ''
+                            THEN %s
+                        WHEN FIND_IN_SET(%s, addinfos) = 0
+                            THEN CONCAT(addinfos, ',', %s)
+                        ELSE addinfos
+                    END
+                WHERE organization = %s
+            ",
+                    'Kultur im Löwen',          // initialer Wert
+                    'Kultur im Löwen',          // prüfen
+                    'Kultur im Löwen',          // anhängen
+                    'Kultur im Löwen'           // WHERE organisation
+                ));
+
+                return ($affected !== false && $affected > 0)
+                    ? "{$affected} Datensätze: addinfos um 'Kultur im Löwen' ergänzt"
+                    : null;
+            },
 
             // 🔧 hier kannst du jederzeit weitere Regeln ergänzen
             // function($wpdb, $table) { ... }
