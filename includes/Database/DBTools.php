@@ -16,10 +16,10 @@ final class DBTools
         $target_table = $wpdb->prefix . 'evmanager';
 
         // Achtung Quelle jfritsch.at
-        $source_db = 'wp_mtorg';
+        //$source_db = 'wp_mtorg';
 
         // Achtung Quelle loewensaal.de
-        // $source_db    = 'wp_loewensaal';
+        $source_db    = 'wp_loewensaal';
         $source_table = 'wp_evmanager';
 
         // 1. Spaltenlisten holen
