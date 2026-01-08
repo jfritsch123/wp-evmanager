@@ -939,8 +939,6 @@ final class EventRepository
      * Alle Events, die an einem bestimmten Tag laufen, also auch solche,
      * die z. B. am 01.09. starten und bis 03.09. laufen → bei Abfrage für 02.09. werden sie mit berücksichtigt.
      *
-     * noch nicht implementiert!!!
-     *
      * @param string $date YYYY-MM-DD
      * @param int $excludeId
      * @return array
@@ -969,6 +967,15 @@ final class EventRepository
         return $wpdb->get_results($wpdb->prepare($sql, $params), \ARRAY_A) ?: [];
     }
 
+    /**
+     * Alle Events, die in einem bestimmten Datumsbereich laufen, also auch solche,
+     * die z. B. am 01.09. starten und bis 03.09. laufen → bei Abfrage für 02.09.–04.09. werden sie mit berücksichtigt.
+     *
+     * @param string $start YYYY-MM-DD
+     * @param string $end YYYY-MM-DD
+     * @param int $excludeId
+     * @return array
+     */
     public function findByRange(string $start, string $end, int $excludeId = 0): array {
         global $wpdb;
 
@@ -990,6 +997,7 @@ final class EventRepository
         }
 
         $sql .= " ORDER BY fromdate"; //{$this->orderByEvents()}";
+
         return $wpdb->get_results($wpdb->prepare($sql, $params), \ARRAY_A) ?: [];
     }
 

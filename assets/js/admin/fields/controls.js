@@ -289,33 +289,7 @@ function formatDate(ymd) {
 }
 export function fieldDayEvents(values){
 
-    //const list = values.dayEvents || [];
     const date = values.fromdate || '';
-
-    /*
-    const rows = list.map(ev => {
-        //console.debug('fieldDayEvents',ev);
-        const isAnfrage = ev.status === 'Anfrage erhalten';
-        //console.debug('isAnfrage',isAnfrage);
-        const isThisEvent = String(ev.id) === String(values.id);
-        const isTrash = parseInt(values.trash, 10) === 1;
-        const cls = isThisEvent
-            ? ' wpem-dayevents-row--this'
-            : (isTrash ? ' is-trashed' : 'js-open');
-
-        return `
-          <tr data-id="${ev.id}" class="${cls}">
-            <td>${dot(ev.place1, isAnfrage, ev.places, 'Großer Saal')}</td>
-            <td>${dot(ev.place2, isAnfrage, ev.places, 'Kleiner Saal')}</td>
-            <td>${dot(ev.place3, isAnfrage, ev.places, 'Foyer')}</td>
-            <td>${dot(ev.booked, isAnfrage, ev.places, 'Ausgebucht')}</td>
-
-            <td>${escapeHtml(ev.title || '(ohne Titel)')}</td>
-            <td>${escapeHtml(ev.fromdate)}</td>
-            <td></td>
-          </tr>`;
-    }).join('');
-    */
     const list = values.dayEvents || [];
 
     // Gruppieren nach fromdate
@@ -344,6 +318,8 @@ export function fieldDayEvents(values){
             <td>${dot(ev.place3, isAnfrage, ev.places, 'Foyer')}</td>
             <td>${dot(ev.booked, isAnfrage, ev.places, 'Ausgebucht')}</td>
             <td>${escapeHtml(ev.title || '(ohne Titel)')}</td>
+            <td>${formatDate(ev.fromdate)}</td>
+            <td>${formatDate(ev.todate)}</td>
             <td></td>
           </tr>`;
         }).join('');
@@ -358,7 +334,6 @@ export function fieldDayEvents(values){
     `;
     }).join('');
 
-
     return `
       <div class="wpem-dayevents">
         <label class="wpem-matrix-head wpem-matrix-cell">Alle Events am ${escapeHtml(fmtDMY(date))}</label>    
@@ -367,7 +342,8 @@ export function fieldDayEvents(values){
             <tr>
               <th>Gr</th><th>Kl</th><th>Fo</th><th>A</th>
               <th>Titel</th>
-              <th>Startdatum</th>
+              <th>Von</th>
+              <th>Bis</th>
               <th style="text-align: right;"><button type="button" class="button js-new-same-day" data-date="${escapeHtml(date)}">+ Neu</button></th>
             </tr>
           </thead>

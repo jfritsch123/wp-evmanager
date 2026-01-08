@@ -30,6 +30,7 @@ export const state = {
     ui: {
         trashMode: false,
         restoreFocusId: null,
+        locked : false,
     }
 };
 

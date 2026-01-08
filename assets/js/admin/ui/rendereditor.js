@@ -20,8 +20,6 @@ window.$ = window.jQuery;
  */
 export function renderEditor(model, isNew) {
 
-    console.debug('Rendering editor: ', model);
-
     const header = `<h2>${isNew ? 'Create Event' : 'Edit Event'}</h2>`;
 
     // --- Papierkorb-Status prüfen ---
@@ -47,8 +45,9 @@ export function renderEditor(model, isNew) {
 
     // Locked = wenn mindestens ein Status aus der Liste in lockedStatuses vorkommt
     const locked = !isNew && statusList.some(s => lockedStatuses.includes(s));
-
+    state.ui.locked = false;
     if (locked) {
+        state.ui.locked = true
         lockWarning = `
         <div class="wpem-lock-warning notice notice-warning" style="margin:10px 0;padding:10px;border:1px solid #f0ad4e;">
             <strong>Hinweis:</strong> Dieses Event hat den Status <em>${escapeHtml(model.status)}</em> 
@@ -178,6 +177,7 @@ export function renderEditor(model, isNew) {
             // Klick-Handler für Unlock
             jQuery('.js-unlock-editor').on('change', function () {
                 const unlocked = jQuery(this).is(':checked');
+                state.ui.locked = !unlocked;
                 jQuery('#wpem-form :input').prop('disabled', !unlocked);
                 jQuery(this).prop('disabled', false); // Checkbox selbst bleibt aktiv
             });
@@ -273,6 +273,7 @@ export function highlightActive(){
 /* ---------- Bindings ---------- */
 
 $('#wpem-editor').on('click','.wpem-dayevents .js-open',function(e){
+    if(state.ui.locked) return;
     const id = $(this).data('id');
     if(id) loadEditor(id);
 });
