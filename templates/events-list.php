@@ -3,6 +3,8 @@
 /** @var string $mode full|items */
 /** @var int $totalEvents */
 
+//echo '<pre>'.print_r($events, true).'</pre>';
+
 $items = $mode === 'full' ? $events : ($items ?? []);
 $currentMonth = '';
 ?>

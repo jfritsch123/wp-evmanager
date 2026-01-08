@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: WP EvManager
  * Plugin URI: https://github.com/jfritsch123/wp-evmanager

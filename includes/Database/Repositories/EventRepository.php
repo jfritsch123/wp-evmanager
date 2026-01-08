@@ -1046,6 +1046,8 @@ final class EventRepository
             $until->format('Y-m-d')
         );
 
+        //error_log('EventRepository::find_upcoming_range() SQL: ' . $sql);
+
         return $wpdb->get_results($sql, \ARRAY_A) ?: [];
     }
 
@@ -1092,7 +1094,7 @@ final class EventRepository
      * - Original + Duplikate direkt hintereinander
      * - stabile Sortierung
      */
-    private function orderByEvents(): string
+    private function orderByEvents_old(): string
     {
         return "
         COALESCE(duplicated_from, id) ASC,
@@ -1102,5 +1104,18 @@ final class EventRepository
         id ASC
     ";
     }
+
+    private function orderByEvents(): string
+    {
+        return "
+        fromdate ASC,
+        fromtime ASC,
+        COALESCE(duplicated_from, id) ASC,
+        duplicated_from IS NOT NULL ASC,
+        id ASC
+    ";
+    }
+
 }
+
 
