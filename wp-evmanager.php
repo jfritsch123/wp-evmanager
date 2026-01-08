@@ -7,6 +7,7 @@
  * Version: 1.2.0
  * Author: Joe Fritsch
  * GitHub Plugin URI: https://github.com/jfritsch123/wp-evmanager
+ * GitHub Branch: main
  * Text Domain: wp-evmanager
  * Domain Path: /languages
  */
