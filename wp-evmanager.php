@@ -3,7 +3,7 @@
  * Plugin Name: WP EvManager
  * Plugin URI: https://github.com/jfritsch123/wp-evmanager
  * Description: Klassenbasiertes Event-Plugin (Admin/Frontend getrennt).
- * Version: 1.2.1.2
+ * Version: 1.2.1.3
  * Author: Joe Fritsch
  * GitHub Plugin URI: https://github.com/jfritsch123/wp-evmanager
  * GitHub Branch: main
