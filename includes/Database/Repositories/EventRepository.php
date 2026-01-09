@@ -1033,6 +1033,14 @@ final class EventRepository
         return $wpdb->get_results($prepared, \ARRAY_A) ?: [];
     }
 
+    /**
+     * Liefert kommende Events in einem Datumsbereich ab heutigem Datum.
+     * wird ersetzt durch find_grouped_by_month
+     *
+     * @param int $months Anzahl Monate im Bereich
+     * @param int $offset Offset in Monaten (0 = ab jetzt, 1 = ab jetzt + months, etc.)
+     * @return array
+     */
     public function find_upcoming_range(int $months = 3, int $offset = 0): array
     {
         global $wpdb;
@@ -1057,6 +1065,53 @@ final class EventRepository
         //error_log('EventRepository::find_upcoming_range() SQL: ' . $sql);
 
         return $wpdb->get_results($sql, \ARRAY_A) ?: [];
+    }
+
+    /**
+     * Liefert kommende Events in einem Datumsbereich ab heutigem Datum, gruppiert nach Jahr-Monat.
+     *
+     * @param int $months Anzahl Monate im Bereich
+     * @param int $offset Offset in Monaten (0 = ab jetzt, 1 = ab jetzt + months, etc.)
+     * @return array
+     */
+    public function find_grouped_by_month(int $months = 3, int $offset = 0): array
+    {
+        global $wpdb;
+
+        $today = new \DateTimeImmutable('today');
+
+        // Start: heute + offset*months Monate
+        $start = $today->modify('+' . ($offset * $months) . ' months');
+
+        // End: erster Tag des Monats, der (offset+months) Monate nach dem aktuellen Monat beginnt
+        $end = (new \DateTimeImmutable('first day of this month'))
+            ->modify('+' . (($offset + 1) * $months) . ' months');
+
+        $from = $start->format('Y-m-d');
+        $to   = $end->format('Y-m-d'); // Monatsanfang
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT *
+             FROM {$this->table}
+             WHERE publish <> '0'
+               AND fromdate >= %s
+               AND fromdate < %s
+             ORDER BY fromdate ASC, fromtime ASC",
+                $from,
+                $to
+            ),
+            ARRAY_A
+        ) ?: [];
+
+        $grouped = [];
+        foreach ($rows as $ev) {
+            if (empty($ev['fromdate']) || $ev['fromdate'] === '0000-00-00') continue;
+            $ym = substr($ev['fromdate'], 0, 7);
+            $grouped[$ym][] = $ev;
+        }
+
+        return $grouped;
     }
 
     /**

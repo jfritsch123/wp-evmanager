@@ -1,29 +1,24 @@
 jQuery(function ($) {
-    let offset = 1; // wir zeigen im Shortcode die ersten 3 Monate, daher starten wir bei 1
-
-    $('.evm-events-more').on('click', '.evm-load-more', function () {
-
+    $(document).on('click', '.evm-load-more', function (e) {
         const $btn = $(this);
-        $btn.prop('disabled', true).text('Lade...');
+        let offset = parseInt($btn.data('offset'), 10) || 0;
+        offset++;
+
         $.post(WPEM_Frontend.ajaxurl, {
             action: 'evm_load_events',
-            nonce: WPEM_Frontend.nonce,
             offset: offset
-        }).done(function (resp) {
-            if (resp.success) {
-                $('.evm-events-list').append(resp.data.html);
-                offset = resp.data.offset;
-                $btn.prop('disabled', false).text('Weitere Veranstaltungen');
-            } else {
-                $btn.hide();
+        }, function (resp) {
+            if (!resp.success || !resp.data.trim()) {
+                // keine weiteren Events
+                $btn.remove();
+                return;
             }
-        }).fail(function () {
-            alert('Fehler beim Laden.');
-            $btn.prop('disabled', false).text('Weitere Veranstaltungen');
+
+            $('#evm-events').append(resp.data);
+            $btn.data('offset', offset);
         });
     });
 });
-
 
 jQuery(function ($) {
     const popupId = 349; // deine Popup-ID

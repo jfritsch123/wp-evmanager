@@ -90,7 +90,7 @@
   margin: $spacing-lg 0;
 
   .evm-load-more {
-    background: $color-accent;
+    background: $color-accent !important;
     color: #fff;
     padding: $spacing-sm $spacing-lg;
     border: none;
@@ -110,8 +110,17 @@
 }
 
 .evm-event-detail{
-  h4{
-    color: var(--color-accent) !important;
+  .evm-detail-header{
+    display: flex;
+    align-items: center;
+    margin-bottom:20px;
+    h4{
+      color: var(--color-accent) !important;
+      width:80%;
+    }
+    img.evm-detail-culture-image{
+      width:20%;
+    }
   }
   .evm-detail-organizer{
     font-size:20px;

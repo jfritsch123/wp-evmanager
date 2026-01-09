@@ -150,7 +150,7 @@
   text-align: center;
   margin: 2rem 0; }
   .evm-events-more .evm-load-more {
-    background: #B89B61 !important;
+    background: #B89B61;
     color: #fff;
     padding: 0.5rem 2rem;
     border: none;

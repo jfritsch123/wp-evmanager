@@ -41,22 +41,33 @@ final class Frontend
         ]);
     }
 
-    public function shortcode_events($atts = []): string
+    /**
+     * Shortcode [evm_events]
+     */
+    public function shortcode_events(): string
     {
-        $atts = shortcode_atts([
-            'months' => 3,
-            'limit'  => 50,
-        ], $atts, 'evm_events');
-
         $repo = new \WP_EvManager\Database\Repositories\EventRepository();
-        $events = $repo->find_upcoming_range((int)$atts['months'], 0);
+        $groups = $repo->find_grouped_by_month(3, 0);
 
         ob_start();
-        $template = $this->locate_template('events-list.php');
-        $mode = 'full'; // kompletter Render mit Button
-        include $template;
+        ?>
+        <div id="evm-events">
+            <?php
+            $offset = 0;
+            include $this->locate_template('events-list.php');
+            ?>
+        </div>
+        <div class="evm-events-more">
+            <button type="button"
+                    class="evm-load-more"
+                    data-offset="0">
+                Weitere Veranstaltungen
+            </button>
+        </div>
+        <?php
         return ob_get_clean();
     }
+
     public function ajax_load_events_test(): void
     {
         //check_ajax_referer('wpem_frontend', 'nonce');
@@ -67,27 +78,23 @@ final class Frontend
         ]);
     }
 
+    /**
+     * Ajax-Handler: Weitere Events laden
+     */
     public function ajax_load_events(): void
     {
-        check_ajax_referer('wpem_frontend', 'nonce');
-
-        $offset = isset($_POST['offset']) ? (int) $_POST['offset'] : 0;
-        $months = 3;
+        $offset = isset($_POST['offset']) ? (int)$_POST['offset'] : 0;
 
         $repo = new \WP_EvManager\Database\Repositories\EventRepository();
-        $events = $repo->find_upcoming_range($months, $offset);
+        $groups = $repo->find_grouped_by_month(3, $offset);
+
+        if (empty($groups)) {
+            wp_send_json_success('');
+        }
 
         ob_start();
-        $template = $this->locate_template('events-list.php');
-        $mode = 'items'; // nur Event-Items
-        $items = $events;
-        include $template;
-        $html = ob_get_clean();
-
-        wp_send_json_success([
-            'html'   => $html,
-            'offset' => $offset + 1,
-        ]);
+        include $this->locate_template('events-list.php');
+        wp_send_json_success(ob_get_clean());
     }
 
 
@@ -118,7 +125,6 @@ final class Frontend
             'id'   => $id,
         ]);
     }
-
 
     private function locate_template(string $file): string
     {

@@ -2,7 +2,14 @@
 /** @var array $item */
 ?>
 <div class="evm-event-detail">
-    <h4 class="custom-h4"><?php echo esc_html($item['title']); ?></h4>
+    <div class="evm-detail-header">
+        <h4 class="custom-h4"><?php echo wp_kses($item['title'] ?? '',[ 'br' => [] ]);?></h4>
+        <?php if (!empty($item['addinfos'])): ?>
+            <img src="<?php echo esc_url(WPEVMANAGER_URL . 'assets/img/kultur-im-loewen.jpg'); ?>"
+                 alt="Kultur im Löwen" class="evm-detail-culture-image">
+        <?php endif; ?>
+
+    </div>
     <?php if (!empty($item['picture'])): ?>
         <div class="evm-detail-picture">
             <img src="<?php echo wp_kses_post($item['picture']); ?>" alt="<?php echo esc_attr($item['title']); ?>">
