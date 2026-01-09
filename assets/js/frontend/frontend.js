@@ -1,24 +1,47 @@
 jQuery(function ($) {
     $(document).on('click', '.evm-load-more', function (e) {
-        const $btn = $(this);
+        e.preventDefault();
+
+        const $btn     = $(this);
+        const $wrap    = $btn.closest('.evm-events-more');
+        const $loading = $wrap.find('.evm-loading');
+        console.debug('Lade mehr Events...',$wrap, $loading);
         let offset = parseInt($btn.data('offset'), 10) || 0;
         offset++;
+
+        // UI: Laden starten
+        $btn.prop('disabled', true);
+        $loading.show();
 
         $.post(WPEM_Frontend.ajaxurl, {
             action: 'evm_load_events',
             offset: offset
-        }, function (resp) {
-            if (!resp.success || !resp.data.trim()) {
+        })
+        .done(function (resp) {
+            if (!resp || !resp.success || !resp.data || !resp.data.trim()) {
                 // keine weiteren Events
                 $btn.remove();
+                $loading.remove();
                 return;
             }
 
             $('#evm-events').append(resp.data);
             $btn.data('offset', offset);
+        })
+        .fail(function () {
+            alert('Fehler beim Laden der Veranstaltungen');
+        })
+        .always(function () {
+            // UI: Laden beenden (nur wenn Button noch existiert)
+            if ($btn.length) {
+                $btn.prop('disabled', false);
+                $loading.hide();
+            }
         });
     });
+
 });
+
 
 jQuery(function ($) {
     const popupId = 349; // deine Popup-ID

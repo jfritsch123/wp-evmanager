@@ -179,4 +179,27 @@
   font-size: 18px;
   font-weight: 500; }
 
+.evm-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #555; }
+
+.evm-spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #ddd;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: evm-spin 0.8s linear infinite; }
+
+@keyframes evm-spin {
+  to {
+    transform: rotate(360deg); } }
+.evm-load-more[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed; }
+
 /*# sourceMappingURL=frontend.css.map */

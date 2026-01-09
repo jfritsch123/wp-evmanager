@@ -63,6 +63,10 @@ final class Frontend
                     data-offset="0">
                 Weitere Veranstaltungen
             </button>
+            <div class="evm-loading" style="display:none;">
+                <span class="evm-spinner"></span>
+                <span class="evm-loading-text">Lade Veranstaltungen …</span>
+            </div>
         </div>
         <?php
         return ob_get_clean();
