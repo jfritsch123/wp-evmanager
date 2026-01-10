@@ -11,3 +11,5 @@ Custom Event Manager Plugin for WordPress.
 
 ## Status
 ⚠️ Beta – actively developed
+
+
