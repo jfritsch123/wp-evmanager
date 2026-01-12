@@ -362,7 +362,7 @@ export function fieldHistoryLoader(id,isNew){
 
 export function fieldRequestLoader(id,model,isNew){
     if (isNew) return'';
-    //console.debug('fieldRequestLoader',model);
+
     const entryId = model.wpforms_entry_id;
     const logId = model.wp_evmanager_log_id;
     // Nur anzeigen, wenn wirklich eine gültige ID > 0 vorhanden ist

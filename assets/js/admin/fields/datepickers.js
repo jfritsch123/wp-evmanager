@@ -92,9 +92,6 @@ export function initDatePickers() {
         // >>> HIER: onChange direkt im opts des FROM-Pickers
         window.flatpickr(fromEl, Object.assign({}, baseOpts, {
             onChange(selectedDates, dateStr, inst) {
-                // Debug: siehst du diesen Log? Dann feuert onChange korrekt
-                // console.debug('fromdate changed:', dateStr);
-
                 const isNew = (function () {
                     const form = document.querySelector('#wpem-form');
                     return form && form.dataset && form.dataset.id === '0';

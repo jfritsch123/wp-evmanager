@@ -11,6 +11,8 @@
     --status-bearbeitung: #ffcc00;
     --status-gebucht: #90ee90;
     --status-vereinbarung: #228B22;
+
+    --wpem-activerow: #fffbe6;
 }
 a:focus,
 a:active {
@@ -337,9 +339,17 @@ label.wpem-check {
 .wpem-dot--red    { background:var(--wpem-red); }  /* gebucht */
 .wpem-dot[title]  { cursor:help; }         /* Tooltip-Hinweis */
 
-
+.wpem-table{
+    border-collapse:collapse;
+}
+/*
+.wpem-table tr{
+    border-top:1px solid #fff;
+    border-bottom:1px solid #fff;
+}
+*/
 .wpem-table td a.js-open { text-decoration:none; }
-.wpem-table tr.is-active { background:#fffbe6; }
+.wpem-table tr.is-active { background:#fffbe6; border-top:1px solid #cfcfcf; border-bottom:1px solid #cfcfcf; }
 .wpem-table tr.is-trashed {
     opacity: 0.45;
     color: #666;
@@ -621,6 +631,8 @@ label.wpem-check {
     border-collapse: collapse;
 }
 
+#TB_ajaxContent .wpem-history-table th:nth-child(1) { width: 140px; }  /* Datum */
+#TB_ajaxContent .wpem-history-table th:nth-child(2) { width: 100px; }   /* Benutzer */
 #TB_ajaxContent .wpem-history-table th,
 #TB_ajaxContent .wpem-history-table td {
     vertical-align: top;

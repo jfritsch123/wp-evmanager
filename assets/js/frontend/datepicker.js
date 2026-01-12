@@ -2,8 +2,6 @@ import { Tooltip, buildPlacesHTML, attachTooltip,applyResponsiveMonths,addDatepi
 
 (function($){
 
-    //console.debug('WPEM Datepicker init', WPEM_F);
-
     if (!window.flatpickr) return;
     $('.flatpickr-month').prepend('<span class="flatpickr-month-arrow prev" title="Vorheriger Monat">&lt;</span>');
 
@@ -141,9 +139,7 @@ import { Tooltip, buildPlacesHTML, attachTooltip,applyResponsiveMonths,addDatepi
                 if (typeof TODAY_YMD !== 'undefined' && key < TODAY_YMD) return;
 
                 const info = (WPEM_F?.calendarDays || {})[key];
-
-                //console.debug('onDayCreate key:',key,' info:',info);
-
+                console.debug('Decorate day:', key, info);
                 if (info) {
                     // vorhandene Belegungsinfos: Farben + data-places
                     if (info.cats?.red)    dayElem.classList.add('wpem-cal-red');

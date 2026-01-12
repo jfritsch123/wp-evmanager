@@ -29,8 +29,6 @@ export function saveEditor(e) {
         return;
     }
 
-    console.debug('[saveEditor] Saving event id=', id);
-
     // 2) Daten sammeln
     const data = serializeForm($f);
 
@@ -44,8 +42,6 @@ export function saveEditor(e) {
             notice('updated', id ? WPEM.i18n.saved : WPEM.i18n.created);
 
             const newId = res.id || id;
-
-            console.debug('[saveEditor] Saved event id=', newId, res);
 
             // 🔄 Nur den betroffenen Event erneut laden
             return post('wpem_get_event', { id: newId })
@@ -61,24 +57,6 @@ export function saveEditor(e) {
                     return reloadDayMap();
                 });
         })
-        /*
-        .then(resp2 => {
-            if (resp2 && resp2.calendarDays) {
-                WPEM.calendarDays = resp2.calendarDays;
-
-                const reinit = () => initDatePickers();
-                // falls Editor schon ready: sofort
-                if (document.querySelector('#wpem-editor [name="fromdate"]')) {
-                    reinit();
-                    //console.debug('Reinit pickers after save');
-                } else {
-                    document.addEventListener('wpem:editor:ready', reinit, { once: true });
-                    //console.debug('Waiting for editor ready to reinit pickers');
-                }
-
-            }
-        })
-         */
         .fail(err => {
             if (err && typeof err === 'object' && err.errors) {
                 // Server-seitige Validierungsfehler

@@ -226,19 +226,7 @@ $(document).on('change', '.wpem-status input[type="checkbox"]', function() {
     } else {
         $label.removeClass(cls);
     }
-
-    if(value === 'Anfrage erhalten'){
-        const isChecked = $input.is(':checked');
-        updateSortStateForMode(isChecked);
-    }
 });
 
-/*
-// === Spezialfall: Anfrage erhalten ===
-$('input[name="status[]"][value="Anfrage erhalten"]').on('change', async function() {
-    const isChecked = $(this).is(':checked');
-    updateSortStateForMode(isChecked);
-    //await loadList(); // wartet sauber auf Abschluss
-});
-*/
+
 

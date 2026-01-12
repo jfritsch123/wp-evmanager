@@ -65,7 +65,7 @@ export function buildDayTooltipHTML(items) {
     */
 
     const rows = list.map(ev => {
-        //console.debug('fieldDayEvents',ev);
+
         const isAnfrage = ev.status === 'Anfrage erhalten';
         const fromStr = fmtDMY(ev?.fromdate || '');
         const toStr = ev.todate > ev.fromdate ? fmtDMY(ev?.todate || '') : fromStr;
@@ -234,9 +234,9 @@ function buildDayEvents(values){
     const list = values || [];
     const date = values.fromdate || '';
     const rows = list.map(ev => {
-        //console.debug('fieldDayEvents',ev);
+
         const isAnfrage = ev.status === 'Anfrage erhalten';
-        //console.debug('isAnfrage',isAnfrage);
+
         const isThisEvent = String(ev.id) === String(values.id);
         const cls = isThisEvent ? ' wpem-dayevents-row--this' : '';
         return `
@@ -273,7 +273,6 @@ document.addEventListener('mousedown', e => {
     // Tooltip schließen, wenn irgendwo im Kalender geklickt wird
     if (e.target.closest('.flatpickr-day')) {
         if (window.Tooltip && typeof Tooltip.hide === 'function') {
-            //console.debug('Tooltip hide on day click', window.Tooltip);
             Tooltip.hide();
         }
     }

@@ -31,9 +31,7 @@ export function loadList() {
             order_by: state.order_by
         });
 
-    //console.debug('Lade Event-Liste mit Filter:', payload);
-    //console.trace('Lade Event-Liste mit Filter-Trace:');
-    return post('wpem_list_events', payload)
+     return post('wpem_list_events', payload)
         .then(data => {
             // Server sollte total, page, per_page, total_pages mitsenden
             state.total       = Number(data.total || 0);
@@ -42,6 +40,7 @@ export function loadList() {
             state.per_page    = Number(data.per_page || state.per_page);
             state.order_by    = data.args['order_by'] || state.order_by;
             state.order_dir   = data.args['order_dir'] || state.order_dir;
+
             renderList(data.items || []);
         })
         .fail(err => showError('#wpem-list', err))
@@ -129,7 +128,6 @@ export function renderList(items) {
 
 // nur eine Zeile aktualisieren
 export function renderEventRow(e) {
-    //console.debug("renderEventRow", e.editable);
     const active = (state.activeId === Number(e.id)) ? ' is-active' : '';
     const notEditable = !e.editable ? ' is-readonly' : '';
     const tds = COLUMNS.map(c => `<td>${c.render(e)}</td>`).join('');
@@ -233,7 +231,6 @@ const $filters = $('.wpem-filters-ajax');
 $filters.on('change input', ':input', function (e) {
     if (e.type === 'input' && this.type === 'checkbox') return;
     const $target = $(e.target);
-
     // --- Papierkorb ---
     if ($target.is('[name="trash"]')) {
         state.ui.trashMode = this.checked;
@@ -256,13 +253,16 @@ $filters.on('change input', ':input', function (e) {
     if ($target.is('input[type="text"], input[type="search"]')) {
         return;
     }
-    /*
-    console.debug('Filter geändert:', {
-        name: $target.attr('name'),
-        type: e.type,
-        value: $target.val()
-    });
-    */
+
+    // 🔥 HIER Speziallogik EINMAL behandeln
+    if ($target.is('input[name="status[]"]')) {
+        const isAnfrage = (
+            $filters
+                .find('input[name="status[]"][value="Anfrage erhalten"]')
+                .is(':checked')
+        );
+        updateSortStateForMode(isAnfrage);
+    }
     loadList();
 });
 

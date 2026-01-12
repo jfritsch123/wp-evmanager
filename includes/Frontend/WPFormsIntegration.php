@@ -51,6 +51,7 @@ final class WPFormsIntegration {
         $today  = date('Y-m-d'); //new \DateTimeImmutable('today');   // << hier das heutige Datum
         $dayMap = (new \WP_EvManager\Database\Repositories\EventRepository())->getDayMapSince($today);
 
+        //error_log("daymap from frontend? " . print_r($dayMap, true));
 
         wp_localize_script('wpem-frontend-datepicker', 'WPEM_F', [
             'ajaxurl'   => admin_url('admin-ajax.php'),

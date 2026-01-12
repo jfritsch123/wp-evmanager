@@ -5,7 +5,6 @@ jQuery(function ($) {
         const $btn     = $(this);
         const $wrap    = $btn.closest('.evm-events-more');
         const $loading = $wrap.find('.evm-loading');
-        console.debug('Lade mehr Events...',$wrap, $loading);
         let offset = parseInt($btn.data('offset'), 10) || 0;
         offset++;
 
@@ -91,13 +90,11 @@ window.addEventListener('elementor/popup/show', function(e) {
     const detail = e.detail || {};
     const popupId = detail.id;
     const instance = detail.instance;
-    //console.debug('Popup geöffnet (native):', popupId, instance);
 
     // Event-ID kannst du z. B. als data-Attribut am Trigger setzen:
     // <a class="evm-open-popup" data-event-id="123" data-popup="349">
     const trigger = instance ? instance.getSettings('triggers') : null;
     const $activeTrigger = jQuery('.evm-open-popup[data-popup="' + popupId + '"]').last();
-    //console.debug('Aktiver Trigger:', $activeTrigger);
 
     loadEventDetails(popupId, currentEventId);
 });
@@ -110,8 +107,6 @@ jQuery(function ($) {
         const popupId = $(this).data('popup');   // z. B. 349
         currentEventId = $(this).data('event-id'); // <- richtige ID vom Klick
 
-        //console.debug('Open popup manually:', popupId, currentEventId);
-
         if (typeof elementorProFrontend !== 'undefined' &&
             elementorProFrontend.modules.popup) {
             elementorProFrontend.modules.popup.showPopup({ id: popupId });
@@ -123,8 +118,6 @@ jQuery(function ($) {
  * Lädt Event-Details via AJAX und schreibt sie ins Popup.
  */
 function loadEventDetails(popupId, eventId) {
-    //console.debug('Load Event Details:', { popupId, eventId });
-    //console.debug('WPEM : ', WPEM_Frontend);
     if (!eventId) return;
 
     jQuery.post(WPEM_Frontend.ajaxurl, {
@@ -154,7 +147,6 @@ function loadEventDetails(popupId, eventId) {
 }
 
 document.addEventListener('wpformsReady', function() {
-    console.debug('WPForms ready - initialisiere intlTelInput für Telefonfelder');
     const phoneInputs = document.querySelectorAll('.wpforms-field-phone input[type="tel"]');
 
     phoneInputs.forEach(function(input) {

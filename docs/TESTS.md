@@ -2,20 +2,19 @@
 
 ## Plugin-Information
 - Name: WP EvManager
-- Version: 0.9.x
+- Version: 1.2.1.4
 - Repository: wp-evmanager
 - Status: Beta
 
 ## Testumgebung
-- WordPress: 6.x
-- PHP: 8.1 / 8.2
-- Datenbank: MySQL / MariaDB
+- WordPress: 6.9
+- PHP: 8.5.1 / 8.2
+- Datenbank: MySQL / mysqli 8.0.37
 - Browser:
   - Chrome (aktuell)
   - Firefox (aktuell)
 - Umgebung:
-  - Lokal (LocalWP / XAMPP / Docker)
-  - Staging (optional)
+  - Staging (https://jfritsch.at/mt)
 
 ---
 
@@ -30,16 +29,47 @@ Getestet mit folgenden Rollen:
 - [ ] Abonnent (kein Zugriff)
 
 ---
+## Frontend – Anmeldung
+### Anmeldeformular ausfüllen, abschicken
+- [x] Bestätigungs-E-Mail Admin erhalten
+- [x] Bestätigungs-E-Mail Kunde erhalten
+- [x] "Zuletzt bearbeitet am": 0000-00-00 00:00:00
+- [x] "Bearbeitet von": leer
+- [x] Saalbelegung: Zeile "Angefragt"
+- [x] Original-Anfrage in Popup
+- [x] Anfrage in Änderungs-History
+- [x] Kalender Daymap aktualisiert (Frontend, Backend)
+  - [x] ⚠️ **Bug**: nur 1 Event in daymap sichtbar obwohl zwei Anfragen vorliegen
+    - ✅ gelöst, Bug in EventRepository->getDayMapSince behoben (falsches Trennzeichen)
+    - 🌐 [Refactoring Joe FE 02](http://localhost/trm/projectwork/project-snippet.php?id=48)
+- [ ]  📌  **TODO**: E-mail formatieren (HTML)
+- [x] ⚠️ **Bug**: Liste Anfrage erhalten: nach TS sortieren
+  - ✅ gelöst, Bug in renderlist.js bzw. filterpanel.js behoben
+  - 🌐 [Refactoring Joe 27 Bug in renderlist.js bzw. filterpanel.js](http://localhost/trm/projectwork/project-snippet.php?id=59)
+- [ ]  📌  **TODO**: EV Manager Organization kann keine Anmeldungen bearbeiten<br>
 
 ## Backend – Event Editor
-
+### Filtermöglichkeiten
+- [x ] Filter nach Suche
+- [x ] Filter nach Jahr/Monat
+- [x ] Filter nach Status
+- [x] Filter nach Saalbelegung
+- [x] Filter nach Ausgebucht
+- [x] Filter nach Papierkorb anzeigen
+  - [x] ⚠️ **Bug**: Suche Buttons haben nach Aktivierung keinen Text mehr
+    - ✅  gelöst: applyTrashMode
+    - 🌐 [Refactoring Joe 28](http://localhost/trm/projectwork/project-snippet.php?id=60)
+- [x] Alle Filter zurücksetzen
 ### Anlegen & Bearbeiten
-- [x] Event anlegen
+- [x] Neuanlage Event
 - [x] Pflichtfelder werden validiert
+  - Plichtfelder: Öffentlicher Titel (Veranstaltungskalender), Startdatum, Name des Veranstalters
 - [x] Event speichern
-- [x] Editor neu laden nach Save
-- [x] processed-Datum wird gesetzt
-- [x] Editor-Feld korrekt gesetzt
+  - [x] ⚠️ **Bug**: Zuletzt bearbeitet am wird nicht aktualisiert
+  - [x] ⚠️ **Bug**: Anzahl Personen wird als int gespeichert
+    - ✅ gelöst
+    - 🌐 [Refactoring Joe 29](http://localhost/trm/projectwork/project-snippet.php?id=60)
+- [x] alle Felder korrekt gespeichert
 
 ### Status & Schreibschutz
 - [x] Schreibschutz greift abhängig vom Status
@@ -141,5 +171,5 @@ Getestet mit folgenden Rollen:
 ---
 
 ## Tester
-- Name: (dein Name)
-- Datum: YYYY-MM-DD
+- Name: (Joe Fritsch)
+- Datum: 2026-01

@@ -5,6 +5,7 @@ namespace WP_EvManager\Database\Repositories;
 use WP_EvManager\Database\Schema;
 use WP_EvManager\Security\Permissions;
 use WP_EvManager\Settings\ManagerSettings;
+use WP_EvManager\Database\Normalizer\EventNormalizer;
 
 defined('ABSPATH') || exit;
 
@@ -245,6 +246,7 @@ final class EventRepository
     /**
      * Fügt einen neuen Event-Datensatz hinzu.
      * Erwartet die Daten in einem assoziativen Array mit den Spaltennamen als Keys.
+     * verwendet Hilfsmethode buildFormats() für die Formatierung.
      * @param array $data
      * @return int ID des neuen Datensatzes
      */
@@ -252,60 +254,126 @@ final class EventRepository
     {
         global $wpdb;
 
-        // Whitelist + Format-Map (alle Spalten außer id)
         $allowed = [
-            'fromdate' => '%s',
-            'fromtime' => '%s',
-            'todate' => '%s',
-            'totime' => '%s',
-            'descr1' => '%s',
-            'descr2' => '%s',
-            'descr3' => '%s',
-            'short' => '%s',
-            'organizer' => '%s',
-            'persons' => '%s',
-            'email' => '%s',
-            'tel' => '%s',
-            'picture' => '%s',
-            'title' => '%s',
-            'type' => '%s',
-            'place1' => '%s',
-            'place2' => '%s',
-            'place3' => '%s',
-            'soldout' => '%s',
-            'processed' => '%s', // DATE
-            'editor' => '%s', // user_login
-            'informed' => '%s', // DATE
-            'publish' => '%s',
-            'status' => '%s', // SET als string
-            'booked' => '%d',
-            'organization' => '%s',
-            'note' => '%s',
-            // ✅ NEU
-            'addinfos'      => '%s',
-
-            //'wpforms_entry_id' => '%d',
-            //'ip' => '%s',
+            'fromdate'   => '%s',
+            'fromtime'   => '%s',
+            'todate'     => '%s',
+            'totime'     => '%s',
+            'descr1'     => '%s',
+            'descr2'     => '%s',
+            'descr3'     => '%s',
+            'short'      => '%s',
+            'organizer'  => '%s',
+            'persons'    => '%s',
+            'email'      => '%s',
+            'tel'        => '%s',
+            'picture'    => '%s',
+            'title'      => '%s',
+            'type'       => '%s',
+            'place1'     => '%s',
+            'place2'     => '%s',
+            'place3'     => '%s',
+            'soldout'    => '%s',
+            'processed'  => '%s', // DATETIME
+            'editor'     => '%s',
+            'informed'   => '%s',
+            'publish'    => '%s',
+            'status'     => '%s',
+            'booked'     => '%d',
+            'organization'=> '%s',
+            'note'       => '%s',
+            'addinfos'   => '%s',
+            'ip'         => '%s',
+            'places'     => '%s',
+            'wpforms_entry_id'    => '%d',
+            'wp_evmanager_log_id' => '%d',
         ];
 
-        // Defaults: editor, falls nicht gesetzt
         if (empty($data['editor'])) {
             $data['editor'] = Permissions::current_login();
         }
 
-        // 👉 processed immer auf aktuelles Datum + Uhrzeit setzen
-        $data['processed'] = current_time('mysql');
-
         $filtered = array_intersect_key($data, $allowed);
-        $formats = array_values(array_intersect_key($allowed, $filtered));
+        $filtered['processed'] = current_time('mysql');
+        // ---------- FINAL WARNING FIX ----------
 
-        error_log('EventRepository::insert() <pre>: ' .print_r($_POST,1). print_r($filtered, true) .print_r($formats, true));
+        // informed
+        if (isset($filtered['informed']) && $filtered['informed'] === '') {
+            $filtered['informed'] = null;
+        }
 
-        $wpdb->insert($this->table, $filtered, $formats);
+        // places
+        $filtered['places'] = isset($filtered['places']) ? (string) $filtered['places'] : '';
+
+        // ip
+        $filtered['ip'] = $filtered['ip'] ?? ($_SERVER['REMOTE_ADDR'] ?? '');
+
+        // wpforms_entry_id
+        $filtered['wpforms_entry_id'] = isset($filtered['wpforms_entry_id'])
+            ? (int)$filtered['wpforms_entry_id']
+            : 0;
+
+        // wp_evmanager_log_id
+        $filtered['wp_evmanager_log_id'] = isset($filtered['wp_evmanager_log_id'])
+            ? (int)$filtered['wp_evmanager_log_id']
+            : 0;
+
+        $formats = $this->buildFormats($filtered, $allowed);
+
+        $result = $wpdb->insert($this->table, $filtered, $formats);
+
+        // ❌ INSERT fehlgeschlagen (SQL-Fehler)
+        if ($result === false) {
+            error_log('MYSQL INSERT ERROR: ' . $wpdb->last_error);
+            error_log('LAST QUERY: ' . $wpdb->last_query);
+            return 0;
+        }
+
+        // ⚠️ INSERT erfolgreich, aber mit Warnings
         $insert_id = (int) $wpdb->insert_id;
-        $historyRepo = new \WP_EvManager\Database\Repositories\HistoryRepository();
-        $historyRepo->log_created($insert_id, 'backend');
+        $warnings = $wpdb->get_results('SHOW WARNINGS', ARRAY_A);
+        if (!empty($warnings)) {
+            error_log('MYSQL WARNINGS: ' . print_r($warnings, true));
+            error_log('LAST QUERY: ' . $wpdb->last_query);
+        }
+
+        // ✅ Erfolgreich
+        $historyRep = new \WP_EvManager\Database\Repositories\HistoryRepository();
+        $historyRep->log_created($insert_id);
+
         return $insert_id;
+    }
+
+    /**
+     * Baut das Format-Array für den Insert/Update zusammen.
+     * Loggt Fehler, wenn kein Format definiert ist.
+     * @param array $filtered
+     * @param array $allowed
+     * @return array
+     */
+    private function buildFormats(array $filtered, array $allowed): array
+    {
+        $formats = [];
+
+        foreach ($filtered as $column => $value) {
+            if (!isset($allowed[$column])) {
+                error_log("❌ INSERT GUARD: No format defined for column '{$column}'");
+                $formats[] = '%s';
+                continue;
+            }
+
+            $formats[] = $allowed[$column];
+
+            // Extra Sicherheit
+            if (
+                in_array($column, ['processed','informed','soldout','fromdate','todate'], true)
+                && $allowed[$column] === '%d'
+            ) {
+                error_log("❌ INSERT GUARD: '{$column}' mapped to %d – invalid");
+            }
+        }
+
+        return $formats;
     }
 
     public function update_if_permitted(int $id, array $data, bool $can_edit_all): bool
@@ -382,6 +450,12 @@ final class EventRepository
             $formats,
             ['%d']
         );
+
+        $warnings = $wpdb->get_results('SHOW WARNINGS', ARRAY_A);
+        if ($warnings) {
+            error_log('MYSQL WARNINGS: ' . print_r($warnings, true));
+        }
+
         // 🔹 History nur loggen, wenn Update erfolgreich war
         $historyRepo = new \WP_EvManager\Database\Repositories\HistoryRepository();
 
@@ -783,6 +857,8 @@ final class EventRepository
             ORDER BY fromdate ASC
         ", $params);
 
+        error_log("SQL even from frontend? " . print_r($sql, true));
+
         $rows = $wpdb->get_results($sql, \ARRAY_A) ?: [];
 
         // Zusätzliche Anfragen mit "places" und Status = 'Anfrage erhalten'
@@ -794,6 +870,8 @@ final class EventRepository
               AND places IS NOT NULL AND places <> ''
               AND fromdate >= %s
         ", ['Anfrage erhalten', $since]);
+
+        error_log("SQL places from frontend? " . print_r($sqlPlaces, true));
 
         $rowsPlaces = $wpdb->get_results($sqlPlaces, \ARRAY_A) ?: [];
         // Expandieren & mergen (wie gehabt)
@@ -856,7 +934,9 @@ final class EventRepository
 
             // expandieren
             for ($cur = clone $from; $cur <= $to; $cur->modify('+1 day')) {
-                $places = array_map('trim', explode(',', (string)$r['places']));
+                $places = preg_split('/[\r\n,]+/', (string)$r['places']);
+                $places = array_map('trim', $places);
+                $places = array_filter($places);
                 $p1 = in_array('Großer Saal', $places, true) ? 1 : 0;
                 $p2 = in_array('Kleiner Saal', $places, true) ? 1 : 0;
                 $p3 = in_array('Foyer', $places, true) ? 1 : 0;

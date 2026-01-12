@@ -248,6 +248,10 @@ export function applyTrashMode(fromdate = null) {
             const $el = $(this);
             const type = this.type;
 
+            // Buttons & Submit niemals anfassen
+            if (type === 'button' || type === 'submit' || $el.tagName === 'BUTTON') {
+                return;
+            }
             if (type === 'checkbox' || type === 'radio') {
                 $el.prop('checked', false);
             } else if (this.tagName === 'SELECT') {

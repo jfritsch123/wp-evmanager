@@ -97,7 +97,7 @@ export function loadHistory(items) {
             !Array.isArray(row.changes)
                 ? row.changes
                 : {};
-        //console.debug('[History] Verarbeitung der Änderungen', changesObj);
+
         Object.entries(changesObj).forEach(([field, vals]) => {
             if (!Array.isArray(vals) || vals.length < 2) {
                 console.warn('[History] Ungültiges Change-Format', field, vals);
@@ -108,7 +108,7 @@ export function loadHistory(items) {
             }
             const alias = fieldAliases[field] || field;
             const [oldVal, newVal] = vals;
-            console.debug([oldVal, newVal],vals);
+
             changes += `
                 <div class="wpem-change">${esc(alias)}:
                      <span class="wpem-old">${fmtValue(field, oldVal)}</span>
