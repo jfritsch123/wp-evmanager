@@ -1,6 +1,6 @@
 
 import {loadList} from "./renderlist.js";
-import {updateSortStateForMode} from "./renderlist.js";
+import {setDateInputEnabled} from "./filterhelper.js";
 import {lastDayOfMonthStr} from "../util/helper.js";
 import {loadEditor} from "./rendereditor.js";
 
@@ -151,12 +151,12 @@ export function resetFilters($f,$mode = null ){
         .append(jQuery(`<option/>`, { value:'', text:'Monat wählen' }));
 
     // Datepicker-Felder wieder aktivieren & leeren
-    /*
     const minEl = $f.find('input[name="fromdate_min"]')[0];
     const maxEl = $f.find('input[name="fromdate_max"]')[0];
     if (minEl){ setDateInputEnabled(minEl, true); minEl.value = ''; }
     if (maxEl){ setDateInputEnabled(maxEl, true); maxEl.value = ''; }
 
+    /*
     // „Ab heute“ wieder aktiv + angehakt
     $f.find('input[name="start_ab_today"]').prop('disabled', false).prop('checked', true);
     */

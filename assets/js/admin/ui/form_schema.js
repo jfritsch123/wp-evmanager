@@ -47,7 +47,7 @@ export const FORM_SCHEMA = [
         columns: 2,
         fields: [
             { id: 'organizer',    type: 'text',  label: 'Name des Veranstalters' },
-            { id: 'organization', type: 'organization',  label: 'Organisation' },
+            { id: 'organization', type: 'text',  label: 'Organisation' },
         ],
     },
     {

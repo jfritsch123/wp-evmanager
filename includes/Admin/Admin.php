@@ -163,7 +163,6 @@ final class Admin
                     </div>
                 </fieldset>
 
-                <?php /*
                 <!-- Datumsbereich -->
                 <fieldset class="wpem-daterange">
                     <legend>Datumsbereich Start bis </legend>
@@ -180,7 +179,6 @@ final class Admin
                     </label>
                     -->
                 </fieldset>
-                */ ?>
 
                 <!-- Jahr / Monat -->
                 <fieldset class="wpem-yearmonth">

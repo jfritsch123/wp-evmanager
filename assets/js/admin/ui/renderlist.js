@@ -6,7 +6,7 @@ import { escapeHtml, todayYmd, renderHelpIcon, spinnerHTML} from '../util/helper
 //import { updateDateFilterAvailability, withFilterLock } from './filterhelper.js';
 import { renderPagination, bindPagination } from '../util/pagination.js';
 import { loadEditor,highlightActive } from "./rendereditor.js";
-import {applyTrashMode} from "./filterhelper.js";
+import {applyTrashMode, setDateInputEnabled} from "./filterhelper.js";
 
 window.$ = window.jQuery;
 
@@ -14,14 +14,7 @@ export function loadList() {
 
     showLoadingSpinner();
     readFilters();
-    /*
-    let fromdate_min = '';
-    if (state.filters.fromdate_min) {
-        fromdate_min = state.filters.fromdate_min;
-    } else if (state.filters.start_ab_today) {
-        fromdate_min = todayYmd();
-    }
-    */
+
     const payload = Object.assign({},
         state.filters, {
             page: state.page,
@@ -224,48 +217,48 @@ $(document).on('click', 'th.sortable', async function (e) {
 
 // =====================================================
 // Automatisches Neuladen bei Änderungen
-// neue Version
+// neue Version am 12.1.2026
 // =====================================================
 
 const $filters = $('.wpem-filters-ajax');
 $filters.on('change input', ':input', function (e) {
-    if (e.type === 'input' && this.type === 'checkbox') return;
+
+    // 🔥 input-Events komplett ignorieren
+    if (e.type === 'input') return;
+
     const $target = $(e.target);
-    // --- Papierkorb ---
+
     if ($target.is('[name="trash"]')) {
         state.ui.trashMode = this.checked;
         applyTrashMode();
-        return; // ⬅️ hier bewusst abbrechen
-    }
-
-    // Wenn Papierkorb aktiv → alles andere ignorieren
-    if (state.ui.trashMode) {
         return;
     }
 
-    /*
-    if ($target.is('[name="filter_year"]')) {
-        withFilterLock(() => updateDateFilterAvailability());
-    }
-    */
+    if (state.ui.trashMode) return;
 
-    // Textfelder nur bei Enter
     if ($target.is('input[type="text"], input[type="search"]')) {
         return;
     }
 
-    // 🔥 HIER Speziallogik EINMAL behandeln
     if ($target.is('input[name="status[]"]')) {
-        const isAnfrage = (
+        const isAnfrage =
             $filters
                 .find('input[name="status[]"][value="Anfrage erhalten"]')
-                .is(':checked')
-        );
+                .is(':checked');
         updateSortStateForMode(isAnfrage);
     }
+
+    if( $target.is('[name="filter_year"]')) {
+        const elFromMax = $filters.find('input[name="fromdate_max"]')[0];
+        if(this.value) {
+            setDateInputEnabled(elFromMax, false);
+        }else{
+            setDateInputEnabled(elFromMax, true);
+        }
+    }
+
     loadList();
 });
-
 
 // 5️⃣ Texteingaben: Nur auf ENTER reagieren
 $filters.on('keydown', 'input[type="text"], input[type="search"]', function(e) {
@@ -298,6 +291,9 @@ $filters.on('click', 'input[type="button"][name="qreset"]', function() {
 
 $filters.on('click', 'input[type="button"][name="fromdate_max_reset"]', function() {
     const $maxdate = $filters.find('input[name="fromdate_max"]');
+    const maxEl = $maxdate[0];
+    if (maxEl){ setDateInputEnabled(maxEl, true); maxEl.value = ''; }
+    state.filters.fromdate_max = '';
     const fp = $maxdate[0]?._flatpickr;
     if(fp){
         fp.clear();

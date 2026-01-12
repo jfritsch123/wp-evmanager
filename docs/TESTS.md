@@ -42,7 +42,7 @@ Getestet mit folgenden Rollen:
   - [x] ⚠️ **Bug**: nur 1 Event in daymap sichtbar obwohl zwei Anfragen vorliegen
     - ✅ gelöst, Bug in EventRepository->getDayMapSince behoben (falsches Trennzeichen)
     - 🌐 [Refactoring Joe FE 02](http://localhost/trm/projectwork/project-snippet.php?id=48)
-- [ ]  📌  **TODO**: E-mail formatieren (HTML)
+- [x] ✅  **TODO**: E-mail formatieren (HTML): erledigt
 - [x] ⚠️ **Bug**: Liste Anfrage erhalten: nach TS sortieren
   - ✅ gelöst, Bug in renderlist.js bzw. filterpanel.js behoben
   - 🌐 [Refactoring Joe 27 Bug in renderlist.js bzw. filterpanel.js](http://localhost/trm/projectwork/project-snippet.php?id=59)

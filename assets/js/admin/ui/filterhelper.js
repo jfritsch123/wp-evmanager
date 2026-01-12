@@ -100,7 +100,8 @@ function fillMonthsForYear(y,$month){
 export function setDateInputEnabled(inputEl, enabled){
     if (!inputEl) return;
     const fp = inputEl._flatpickr;
-
+    const resetButton = inputEl.nextElementSibling.nextElementSibling;
+    console.debug('setDateInputEnabled:', inputEl.name, resetButton);
     if (fp) {
         // sichtbares Eingabefeld (bei altInput:true)
         if (fp.altInput) {
@@ -114,7 +115,7 @@ export function setDateInputEnabled(inputEl, enabled){
             fp._input.value = '';
             fp.clear(); // Flatpickr-internen Zustand leeren
         }
-
+        resetButton.disabled = !enabled;
     } else {
         // kein Flatpickr vorhanden
         inputEl.disabled = !enabled;
