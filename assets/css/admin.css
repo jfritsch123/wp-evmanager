@@ -179,7 +179,7 @@ a:active {
 .wpem-table tr.is-active { background:#fff7e6; }
 .wpem-table tr td:first-child{ }
 .wpem-editor .wpem-form__grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.wpem-form__full { grid-column:1 / -1; }
+.wpem-form__full { margin-top:10px; }
 .wpem-form__actions { margin-top:12px; display:flex; gap:8px; align-items:center; }
 .button-link-delete { color:#b32d2e; }
 
@@ -379,7 +379,7 @@ label.wpem-check {
 
 /* Gruppen-Layout */
 .wpem-group { border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; margin-bottom:12px; }
-.wpem-group > legend { font-weight:600; padding:0 4px; }
+.wpem-group > legend { font-weight:600; padding:4px 0; }
 .wpem-group-gridlll {
     --cols: 1;
     display:grid;
@@ -397,6 +397,7 @@ label.wpem-check {
 }
 
 .wpem-group-grid label { display:flex; flex-direction:column; gap:6px; }
+.wpem-group-grid label:not([class]){ margin-top:10px;}
 
 /* bereits vorhandenes (Auszug) */
 .wpem-form__actions { margin-top:12px; display:flex; gap:8px; align-items:center; }

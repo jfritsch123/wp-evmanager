@@ -58,27 +58,10 @@ export function saveEditor(e) {
                 });
         })
         .fail(err => {
-            if (err && typeof err === 'object' && err.errors) {
-                // Server-seitige Validierungsfehler
-                formEl.querySelectorAll('.wpem-error').forEach(el => el.classList.remove('wpem-error'));
-                formEl.querySelectorAll('.wpem-error-msg').forEach(el => el.remove());
-
-                Object.entries(err.errors).forEach(([name, msg]) => {
-                    const field = formEl.querySelector(`[name="${name}"]`);
-                    if (!field) return;
-                    field.classList.add('wpem-error');
-                    const span = document.createElement('span');
-                    span.className = 'wpem-error-msg';
-                    span.textContent = String(msg || 'Invalid value');
-                    field.insertAdjacentElement('afterend', span);
-                });
-
-                const firstErr = formEl.querySelector('.wpem-error');
-                if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                return;
-            }
-
-            notice('error', (typeof err === 'string' ? err : (err?.message || 'Error')));
+            const responseObj = JSON.parse(err.responseText);
+            const message = responseObj?.data?.message;
+            const error = 'Error: ' + message;
+            notice('error', error);
         })
         .always(() => {
             hideOverlay();

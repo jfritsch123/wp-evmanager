@@ -1,6 +1,4 @@
 import { WYSIWYG_FIELDS } from '../ui/form_schema.js';
-/**
- * Initialisiert die TinyMCE-Editoren für die WYSIWYG-Felder.
  /**
  * Initialisiert die TinyMCE-Editoren für die WYSIWYG-Felder.
  */
@@ -18,7 +16,7 @@ export function initEditors() {
                 statusbar: true,
                 height: (id === 'note') ? 260 : 220
             },
-            quicktags: true,
+            quicktags: false,
             mediaButtons: false
         });
     });
