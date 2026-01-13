@@ -71,17 +71,28 @@ export function initDatePickers() {
     const toEl = document.querySelector('#wpem-editor [name="todate"]');
 
     // toDate zuerst initialisieren (damit Instanz existiert)
+    // Beim Öffnen des todate-Pickers (onOpen) immer die aktuelle fromdate als minDate setzen.
     if (toEl) {
         try {
             if (toEl.type === 'date') toEl.type = 'text';
-        } catch (e) {
-        }
+        } catch (e) {}
+
         if (toEl._flatpickr) toEl._flatpickr.destroy();
+
         window.flatpickr(toEl, Object.assign({}, baseOpts, {
-            // toDate: keine zusätzliche Logik nötig – Sperren via minDate kommt vom fromDate
+            onOpen(selectedDates, dateStr, inst) {
+                if (!fromEl || !fromEl._flatpickr) return;
+
+                const fromVal = fromEl._flatpickr.input?.value;
+                if (fromVal) {
+                    // minDate setzen, bevor der Kalender angezeigt wird
+                    inst.set('minDate', fromVal);
+                }
+            }
         }));
     }
 
+    // fromDate initialisieren
     if (fromEl) {
         try {
             if (fromEl.type === 'date') fromEl.type = 'text';
