@@ -444,7 +444,7 @@ final class EventRepository
         //error_log('EventRepository::update_if_permitted() <pre>: ' .print_r($_POST,1). print_r($filtered, true) .print_r($formats, true));
 
         $result = $wpdb->update(
-            $this->table.'xx',
+            $this->table,
             $filtered,
             ['id' => $id],
             $formats,
