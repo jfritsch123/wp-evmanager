@@ -31,6 +31,13 @@ window.addEventListener('unhandledrejection', function (e) {
 });
 
 jQuery(function($){
+
+    if (WPEM?.status_request_default) {
+        $('.wpem-filters-ajax')
+            .find('[name="status[]"]')
+            .val(['Anfrage erhalten'])
+            .trigger('change');
+    }
     bootFilterDatePickers();
     initYearMonthFilters();
     enableToggleableHallRadios();

@@ -17,7 +17,7 @@ final class HelpAjax
     public static function handle(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('No permission');
+            //wp_send_json_error('No permission');
         }
 
         $context = sanitize_text_field($_GET['context'] ?? '');

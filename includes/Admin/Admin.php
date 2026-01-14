@@ -97,7 +97,7 @@ final class Admin
                 'since' => $today,
             ],
             'lockedStatuses' => ManagerSettings::get_value('locked_statuses', []),
-
+            'status_request_default' => ManagerSettings::get_value('status_request_default'),
         ]);
 
         $ym   = $repo->get_years_months_named();
@@ -145,7 +145,6 @@ final class Admin
         echo '</div>'; // .wpem-grid
         echo '</div>'; // .wrap
     }
-
 
     protected function render_filters(): void {
         echo '<label><h3>Filtermöglichkeiten ' . \WP_EvManager\Admin\HelpUI::icon('filter_options') . '</h3></label>';

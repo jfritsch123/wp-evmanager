@@ -95,5 +95,4 @@ final class Plugin
         $submission = new \WP_EvManager\Frontend\WPFormsSubmission(WPEM_WPFORMS_FORM_ID,WPEM_WPFORMS_MAP);
         add_action('wpforms_process_complete', [$submission, 'handle'], 20, 4);
     }
-
 }

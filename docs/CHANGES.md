@@ -9,3 +9,7 @@ ab 13.01.2026, 10:00
 Vaersion 1.2.1.6
 - Backend CSS Verbesserungen: Editor - legend, label
 - Verbessertes Errorhandling in saveditor.js
+Version 1.2.1.7
+- entfernt da nicht mehr verwendet: public static function register_settings()
+- neu in Settings: Schalter Status „Anfrage erhalten“ beim Start aktivieren
+- HelpRepository: Hilfe für alle user: if (!current_user_can('manage_options')) {//wp_send_json_error('No permission'); }

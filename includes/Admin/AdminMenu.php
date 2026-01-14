@@ -13,28 +13,6 @@ final class AdminMenu
 
     }
 
-    public static function register_settings(): void{
-        register_setting('wpem_settings', 'wpem_locked_statuses', [
-            'type' => 'array',
-            'sanitize_callback' => function($val) {
-                return array_map('sanitize_text_field', (array)$val);
-            },
-            'default' => [],
-        ]);
-        // Anzeige ab Jahr
-        register_setting('wpem_settings', 'wpem_year_limit', [
-            'type'              => 'string',
-            'sanitize_callback' => function ($val) {
-                // Erlaubt "all" oder eine Ganzzahl (Jahr)
-                if ($val === 'all') {
-                    return 'all';
-                }
-                return ctype_digit((string) $val) ? (string) $val : 'all';
-            },
-            'default'           => 'all',
-        ]);
-    }
-
     public static function register_menu(): void
     {
         $admin = new \WP_EvManager\Admin\Admin();
@@ -398,6 +376,7 @@ final class AdminMenu
             $new_settings = [
                     'locked_statuses' => (array) ($_POST['wpem_locked_statuses'] ?? []),
                     'year_limit'      => $_POST['wpem_year_limit'] ?? 'all',
+                    'status_request_default' => !empty($_POST['wpem_status_request_default']),
             ];
 
             \WP_EvManager\Settings\ManagerSettings::save($new_settings);
@@ -456,6 +435,26 @@ final class AdminMenu
                         class="regular-text"
                 >
 
+                <hr>
+
+                <h2><?php esc_html_e('Standard-Filter', 'wp-evmanager'); ?></h2>
+                <p class="description">
+                    <?php esc_html_e(
+                            'Legt fest, ob der Status „Anfrage erhalten“ beim Öffnen der Eventliste automatisch aktiv ist.',
+                            'wp-evmanager'
+                    ); ?>
+                </p>
+
+                <label>
+                    <input
+                            type="checkbox"
+                            name="wpem_status_request_default"
+                            value="1"
+                            <?php checked(!empty($settings['status_request_default'])); ?>
+                    >
+                    <?php esc_html_e('Status „Anfrage erhalten“ beim Start aktivieren', 'wp-evmanager'); ?>
+                </label>
+
                 <p style="margin-top:20px;">
                     <button
                             type="submit"
@@ -465,6 +464,7 @@ final class AdminMenu
                         <?php esc_html_e('Speichern', 'wp-evmanager'); ?>
                     </button>
                 </p>
+
             </form>
         </div>
         <?php

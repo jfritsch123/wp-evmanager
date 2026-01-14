@@ -66,6 +66,7 @@ final class ManagerSettings
         return [
             'locked_statuses' => [],
             'year_limit'      => 'all',
+            'status_request_default' => false,
         ];
     }
 
@@ -84,6 +85,8 @@ final class ManagerSettings
             'year_limit' => self::sanitize_year_limit(
                 $settings['year_limit'] ?? 'all'
             ),
+            // Standard-Status „Anfrage erhalten“ beim Start aktivieren
+            'status_request_default' => !empty($settings['status_request_default']),
         ];
     }
 
