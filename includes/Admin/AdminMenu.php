@@ -100,12 +100,8 @@ final class AdminMenu
                 <?php wp_nonce_field('wpem_db_tools_action', 'wpem_db_tools_nonce'); ?>
                 <p>
                     <button type="submit" name="wpem_db_create_history" class="button button-secondary"
-                            onclick="return confirm('Soll die History-Tabelle neu erzeugt werden? (bestehende Daten bleiben erhalten)');">
-                        <?php esc_html_e('History-Tabelle erzeugen', 'wp-evmanager'); ?>
-                    </button>
-                    <button type="submit" name="wpem_db_clear" class="button button-secondary"
-                            onclick="return confirm('Achtung: Alle Events werden gelöscht. Fortfahren?');">
-                        <?php esc_html_e('Events leeren', 'wp-evmanager'); ?>
+                            onclick="return confirm('Soll die History-Tabelle geleert werden?');">
+                        <?php esc_html_e('History-Tabelle Leeren / anlegen', 'wp-evmanager'); ?>
                     </button>
                 </p>
             </form>
@@ -138,38 +134,47 @@ final class AdminMenu
         ) {
             global $wpdb;
 
-            // History-Tabelle anlegen
+            // History-Tabelle neu anlegen (löschen + erstellen)
             if (isset($_POST['wpem_db_create_history'])) {
+                global $wpdb;
                 require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
+                $history_table   = $wpdb->prefix . 'evmanager_history';
                 $charset_collate = $wpdb->get_charset_collate();
-                $history_table = $wpdb->prefix . 'evmanager_history';
 
-                $sql_history = "CREATE TABLE {$history_table} (
-                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-                event_id BIGINT UNSIGNED NOT NULL,
-                editor VARCHAR(255) NOT NULL,
-                changed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                changes JSON NOT NULL,
-                PRIMARY KEY (id),
-                KEY idx_event_id (event_id),
-                KEY idx_changed_at (changed_at)
-            ) {$charset_collate};";
-
+                // 1️⃣ Tabelle anlegen (falls nicht vorhanden)
+                $sql_history = "
+                    CREATE TABLE {$history_table} (
+                        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                        event_id BIGINT UNSIGNED NOT NULL,
+                        editor VARCHAR(255) NOT NULL,
+                        changed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        changes JSON NOT NULL,
+                        PRIMARY KEY (id),
+                        KEY idx_event_id (event_id),
+                        KEY idx_changed_at (changed_at)
+                    ) {$charset_collate};
+                ";
                 dbDelta($sql_history);
 
-                echo '<div class="notice notice-success"><p>' . esc_html__('History-Tabelle erzeugt oder aktualisiert.', 'wp-evmanager') . '</p></div>';
+                // 2️⃣ Prüfen, ob Tabelle existiert
+                $exists = $wpdb->get_var(
+                        $wpdb->prepare(
+                                "SHOW TABLES LIKE %s",
+                                $history_table
+                        )
+                );
+
+                // 3️⃣ Nur leeren, wenn sie existiert
+                if ($exists === $history_table) {
+                    $wpdb->query("TRUNCATE TABLE `{$history_table}`");
+                }
+
+                echo '<div class="notice notice-success"><p>' .
+                        esc_html__('History-Tabelle ist vorhanden und wurde geleert.', 'wp-evmanager') .
+                        '</p></div>';
             }
 
-            // Events leeren
-            if (isset($_POST['wpem_db_clear'])) {
-                $table = $wpdb->prefix . 'evmanager';
-                $wpdb->query("TRUNCATE TABLE {$table}");
-                echo '<div class="notice notice-success"><p>' . esc_html__('Alle Events wurden gelöscht.', 'wp-evmanager') . '</p></div>';
-                $table = $wpdb->prefix . 'evmanager_history';
-                $wpdb->query("TRUNCATE TABLE {$table}");
-                echo '<div class="notice notice-success"><p>' . esc_html__('Alle History Einträge wurden gelöscht.', 'wp-evmanager') . '</p></div>';
-            }
         }
     }
 
