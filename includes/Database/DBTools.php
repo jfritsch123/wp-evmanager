@@ -79,92 +79,9 @@ final class DBTools
     }
 
 
-    public static function post_import_adjustments_new(string $table, bool $dryRun = false): array
-    {
-        global $wpdb;
-        $log = [];
-
-        $has_col = function(string $col) use ($wpdb, $table): bool {
-            return (bool) $wpdb->get_var(
-                $wpdb->prepare("SHOW COLUMNS FROM `{$table}` LIKE %s", $col)
-            );
-        };
-
-        $exec = function(string $sql, string $countSql = null) use ($wpdb, $dryRun) {
-            if ($dryRun) {
-                return (int) $wpdb->get_var($countSql ?: $sql);
-            }
-            return (int) $wpdb->query($sql);
-        };
-
-        /* =========================================
-         * Regel 1: ungültige fromdate
-         * ========================================= */
-        if ($has_col('fromdate')) {
-            $count = $exec(
-                "DELETE FROM `{$table}` WHERE fromdate IS NULL OR fromdate IN ('0000-00-00','1970-01-01')",
-                "SELECT COUNT(*) FROM `{$table}` WHERE fromdate IS NULL OR fromdate IN ('0000-00-00','1970-01-01')"
-            );
-
-            if ($count > 0) {
-                $log[] = ($dryRun ? '[DRY-RUN] ' : '') .
-                    "{$count} Datensätze mit ungültigem fromdate " .
-                    ($dryRun ? 'würden entfernt' : 'entfernt');
-            }
-        }
-
-        /* =========================================
-         * Regel 2: Status setzen
-         * ========================================= */
-        if ($has_col('status')) {
-
-            $count1 = $exec(
-                "UPDATE `{$table}` SET status='In Bearbeitung'
-             WHERE processed IS NOT NULL AND processed <> '0000-00-00 00:00:00'",
-                "SELECT COUNT(*) FROM `{$table}`
-             WHERE processed IS NOT NULL AND processed <> '0000-00-00 00:00:00'"
-            );
-
-            if ($count1 > 0) {
-                $log[] = ($dryRun ? '[DRY-RUN] ' : '') .
-                    "{$count1} Status → In Bearbeitung";
-            }
-
-            $count2 = $exec(
-                "UPDATE `{$table}` SET status='Anfrage erhalten'
-             WHERE (processed IS NULL OR processed='0000-00-00 00:00:00')
-               AND (informed IS NULL OR informed='0000-00-00')
-               AND (publish IS NULL OR publish='0')",
-                "SELECT COUNT(*) FROM `{$table}`
-             WHERE (processed IS NULL OR processed='0000-00-00 00:00:00')
-               AND (informed IS NULL OR informed='0000-00-00')
-               AND (publish IS NULL OR publish='0')"
-            );
-
-            if ($count2 > 0) {
-                $log[] = ($dryRun ? '[DRY-RUN] ' : '') .
-                    "{$count2} Status → Anfrage erhalten";
-            }
-        }
-
-        /* =========================================
-         * Regel 8: Import-Zeitstempel
-         * ========================================= */
-        if ($has_col('import')) {
-            $count = $exec(
-                "UPDATE `{$table}` SET import = NOW()",
-                "SELECT COUNT(*) FROM `{$table}`"
-            );
-
-            if ($count > 0) {
-                $log[] = ($dryRun ? '[DRY-RUN] ' : '') .
-                    "{$count} Datensätze mit Importzeit versehen";
-            }
-        }
-
-        return $log;
-    }
-
+    /**
+     * Führt nach dem Import diverse Anpassungen an den Daten durch.
+     */
     protected static function post_import_adjustments(string $table): array
     {
         global $wpdb;
@@ -279,6 +196,7 @@ final class DBTools
             // 🔧 hier kannst du jederzeit weitere Regeln ergänzen
             // function($wpdb, $table) { ... }
         ];
+
 
         // Regeln ausführen
         $log = [];

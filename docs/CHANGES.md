@@ -15,3 +15,6 @@ Version 1.2.1.7
 - HelpRepository: Hilfe für alle user: if (!current_user_can('manage_options')) {//wp_send_json_error('No permission'); }
 Version 1.2.1.8
 - Feature Änderung in Settings: Admin Settings: History Tabelle leeren, wenn sie existiert, sonst anlegen
+Version 1.2.1.9
+- DBTools:  public static function post_import_adjustments_new gelöscht, da nicht mehr verwendet
+- Frontend: Logo kultur-im-loewen.png hinzugefügt, Anpassung in events-detail.php, CSS Anpassung

@@ -3,7 +3,7 @@
  * Plugin Name: WP EvManager
  * Plugin URI: https://github.com/jfritsch123/wp-evmanager
  * Description: Klassenbasiertes Event-Plugin (Admin/Frontend getrennt).
- * Version: 1.2.1.8
+ * Version: 1.2.1.9
  * Author: Joe Fritsch
  * GitHub Plugin URI: https://github.com/jfritsch123/wp-evmanager
  * GitHub Branch: main
@@ -16,7 +16,9 @@ defined('ABSPATH') || exit;
 define('WPEVMANAGER_FILE', __FILE__);
 define('WPEVMANAGER_DIR', plugin_dir_path(__FILE__));
 define('WPEVMANAGER_URL', plugin_dir_url(__FILE__));
-define('WPEVMANAGER_VERSION', '0.1.9');
+define('WPEVMANAGER_VERSION', '1.2.1.9');
+
+define('WPEVMANAGER_IMG_URL','https://neu.loewensaal.at/wp-content/plugins/wp-evmanager/assets/images/');
 
 // Fallbacks for WordPress result type constants when static analyzers or non-WP
 // environments don't predefine them. WordPress defines these globally, so this

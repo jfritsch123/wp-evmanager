@@ -5,7 +5,7 @@
     <div class="evm-detail-header">
         <h4 class="custom-h4"><?php echo wp_kses($item['title'] ?? '',[ 'br' => [] ]);?></h4>
         <?php if (!empty($item['addinfos'])): ?>
-            <img src="<?php echo esc_url(WPEVMANAGER_URL . 'assets/img/kultur-im-loewen.jpg'); ?>"
+            <img src="<?php echo esc_url(WPEVMANAGER_URL . 'assets/img/kultur-im-loewen.png'); ?>"
                  alt="Kultur im Löwen" class="evm-detail-culture-image">
         <?php endif; ?>
 

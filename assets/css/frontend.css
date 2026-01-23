@@ -171,7 +171,7 @@
     color: var(--color-accent) !important;
     width: 80%; }
   .evm-event-detail .evm-detail-header img.evm-detail-culture-image {
-    width: 20%; }
+    width: 80px; }
 .evm-event-detail .evm-detail-organizer {
   font-size: 20px;
   font-weight: 500; }
