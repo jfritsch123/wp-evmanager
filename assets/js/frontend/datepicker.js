@@ -139,7 +139,7 @@ import { Tooltip, buildPlacesHTML, attachTooltip,applyResponsiveMonths,addDatepi
                 if (typeof TODAY_YMD !== 'undefined' && key < TODAY_YMD) return;
 
                 const info = (WPEM_F?.calendarDays || {})[key];
-                console.debug('Decorate day:', key, info);
+                //console.debug('Decorate day:', key, info);
                 if (info) {
                     // vorhandene Belegungsinfos: Farben + data-places
                     if (info.cats?.red)    dayElem.classList.add('wpem-cal-red');

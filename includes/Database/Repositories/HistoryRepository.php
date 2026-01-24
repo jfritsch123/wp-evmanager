@@ -157,7 +157,7 @@ class HistoryRepository
             ]
         );
 
-        error_log("EventRepository::log_created - ID {$event_id} - source={$source}");
+        //error_log("EventRepository::log_created - ID {$event_id} - source={$source}");
     }
 
     /**
@@ -225,7 +225,7 @@ class HistoryRepository
             ]
         );
 
-        error_log("EventRepository::log_trash - ID {$event_id} - source={$source}");
+        //error_log("EventRepository::log_trash - ID {$event_id} - source={$source}");
     }
 
     public function log_force_delete(int $event_id): void
@@ -247,7 +247,7 @@ class HistoryRepository
             ]
         );
 
-        error_log("EventRepository::log_deleted - ID {$event_id}");
+        //error_log("EventRepository::log_deleted - ID {$event_id}");
     }
 
     public function get_history__(int $event_id, int $limit = 20): array

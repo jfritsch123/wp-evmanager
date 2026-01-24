@@ -101,7 +101,7 @@ export function setDateInputEnabled(inputEl, enabled){
     if (!inputEl) return;
     const fp = inputEl._flatpickr;
     const resetButton = inputEl.nextElementSibling.nextElementSibling;
-    console.debug('setDateInputEnabled:', inputEl.name, resetButton);
+    //console.debug('setDateInputEnabled:', inputEl.name, resetButton);
     if (fp) {
         // sichtbares Eingabefeld (bei altInput:true)
         if (fp.altInput) {

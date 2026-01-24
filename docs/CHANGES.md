@@ -17,4 +17,6 @@ Version 1.2.1.8
 - Feature Änderung in Settings: Admin Settings: History Tabelle leeren, wenn sie existiert, sonst anlegen
 Version 1.2.1.9
 - DBTools:  public static function post_import_adjustments_new gelöscht, da nicht mehr verwendet
-- Frontend: Logo kultur-im-loewen.png hinzugefügt, Anpassung in events-detail.php, CSS Anpassung
+- Frontend: Logo kultur-im-loewen.png hinzugefügt, Anpassung in events-detail.php, CSS Anpassung 
+Version 1.2.2.0
+- "Code cleaning (error_log, console.debug), updating to Version 1.2.2.0"

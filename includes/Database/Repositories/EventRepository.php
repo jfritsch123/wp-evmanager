@@ -857,7 +857,7 @@ final class EventRepository
             ORDER BY fromdate ASC
         ", $params);
 
-        error_log("SQL even from frontend? " . print_r($sql, true));
+        //error_log("SQL even from frontend? " . print_r($sql, true));
 
         $rows = $wpdb->get_results($sql, \ARRAY_A) ?: [];
 
@@ -871,7 +871,7 @@ final class EventRepository
               AND fromdate >= %s
         ", ['Anfrage erhalten', $since]);
 
-        error_log("SQL places from frontend? " . print_r($sqlPlaces, true));
+        //error_log("SQL places from frontend? " . print_r($sqlPlaces, true));
 
         $rowsPlaces = $wpdb->get_results($sqlPlaces, \ARRAY_A) ?: [];
         // Expandieren & mergen (wie gehabt)
