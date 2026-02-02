@@ -46,6 +46,7 @@
       font-size:0.8rem;
       flex: 0 0 140px;    // Icons bleiben am Ende
       @media screen and (max-width: 767px) {
+        font-size:0.9rem;
         flex: 0;    // Icons bleiben am Ende
         margin-bottom:1rem;
         margin-top:0;

@@ -22,3 +22,5 @@ Version 1.2.2.0
 - "Code cleaning (error_log, console.debug), updating to Version 1.2.2.0"
 Version 1.2.2.1
 - CSS Frontend: events-list.scss: .evm-event-icons  mobile Anpassung
+Version 1.2.2.2
+- CSS Frontend: events-list.scss: .evm-event-icons  mobile Anpassung Link

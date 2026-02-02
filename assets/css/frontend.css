@@ -128,6 +128,7 @@
       text-align: right; }
       @media screen and (max-width: 767px) {
         .evm-events-list .evm-event .evm-event-icons {
+          font-size: 0.9rem;
           flex: 0;
           margin-bottom: 1rem;
           margin-top: 0; } }
