@@ -20,3 +20,5 @@ Version 1.2.1.9
 - Frontend: Logo kultur-im-loewen.png hinzugefügt, Anpassung in events-detail.php, CSS Anpassung 
 Version 1.2.2.0
 - "Code cleaning (error_log, console.debug), updating to Version 1.2.2.0"
+Version 1.2.2.1
+- CSS Frontend: events-list.scss: .evm-event-icons  mobile Anpassung

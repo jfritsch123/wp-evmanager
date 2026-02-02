@@ -126,6 +126,11 @@
       flex: 0 0 140px;
       margin-left: auto;
       text-align: right; }
+      @media screen and (max-width: 767px) {
+        .evm-events-list .evm-event .evm-event-icons {
+          flex: 0;
+          margin-bottom: 1rem;
+          margin-top: 0; } }
       .evm-events-list .evm-event .evm-event-icons a {
         color: #B89B61;
         width: 15px;
