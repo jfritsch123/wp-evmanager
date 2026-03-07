@@ -1232,22 +1232,6 @@ final class EventRepository
         ];
     }
 
-    /**
-     * Zentrale ORDER-BY-Logik für Event-Listen
-     * - Original + Duplikate direkt hintereinander
-     * - stabile Sortierung
-     */
-    private function orderByEvents_old(): string
-    {
-        return "
-        COALESCE(duplicated_from, id) ASC,
-        duplicated_from IS NOT NULL ASC,
-        fromdate ASC,
-        fromtime ASC,
-        id ASC
-    ";
-    }
-
     private function orderByEvents(): string
     {
         return "
