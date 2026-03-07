@@ -666,7 +666,8 @@ final class EventRepository
             $sql = "SELECT id, fromdate, todate,
                        COALESCE(place1,'') place1, COALESCE(place2,'') place2, COALESCE(place3,'') place3,
                        COALESCE(status,'') status, COALESCE(booked,0) booked
-                FROM {$table}";
+                FROM {$table}
+                WHERE (trash = 0 OR trash IS NULL)";
             return (array)$wpdb->get_results($sql, \ARRAY_A);
         }
         $s = $since->format('Y-m-d');
@@ -677,9 +678,12 @@ final class EventRepository
                 COALESCE(status,'') status, COALESCE(booked,0) booked
          FROM {$table}
          WHERE 
-           (fromdate IS NOT NULL AND fromdate <> '0000-00-00' AND fromdate >= %s)
-           OR
-           (todate   IS NOT NULL AND todate   <> '0000-00-00' AND todate   >= %s)",
+           (
+             (fromdate IS NOT NULL AND fromdate <> '0000-00-00' AND fromdate >= %s)
+             OR
+             (todate   IS NOT NULL AND todate   <> '0000-00-00' AND todate   >= %s)
+           )
+           AND (trash = 0 OR trash IS NULL)",
             $s, $s
         );
         return (array)$wpdb->get_results($sql, \ARRAY_A);
@@ -997,7 +1001,7 @@ final class EventRepository
     {
         global $wpdb;
 
-        $where = 'fromdate = %s';
+        $where = 'fromdate = %s AND (trash = 0 OR trash IS NULL)';
         $params = [$date];
 
         if ($excludeId > 0) {
@@ -1099,8 +1103,11 @@ final class EventRepository
         SELECT *
         FROM {$this->table}
         WHERE 
-            (fromdate >= %s)
-            OR (todate IS NOT NULL AND todate <> '0000-00-00' AND todate >= %s)
+            (
+                (fromdate >= %s)
+                OR (todate IS NOT NULL AND todate <> '0000-00-00' AND todate >= %s)
+            )
+            AND (trash = 0 OR trash IS NULL)
         ORDER BY fromdate ASC, fromtime ASC
     ";
 
@@ -1129,7 +1136,6 @@ final class EventRepository
         $start = new \DateTimeImmutable($from);
         $since = $start->modify('+' . ($offset * $months) . ' months');
         $until = $since->modify('+' . $months . ' months');
-        $where[] = 'publish IS NOT NULL AND publish <> "0"';
 
         $sql = $wpdb->prepare(
             "SELECT * FROM {$this->table}
@@ -1137,6 +1143,7 @@ final class EventRepository
            AND fromdate <= %s
            AND publish IS NOT NULL 
            AND publish <> '0'
+           AND (trash = 0 OR trash IS NULL)
          ORDER BY {$this->orderByEvents()}",
             $since->format('Y-m-d'),
             $until->format('Y-m-d')
@@ -1149,7 +1156,8 @@ final class EventRepository
 
     /**
      * Liefert kommende Events in einem Datumsbereich ab heutigem Datum, gruppiert nach Jahr-Monat.
-     *
+     * geändert am 2026-03-07: Junie:
+     *      SQL-Abfrage um `AND (trash = 0 OR trash IS NULL)` erweitert.
      * @param int $months Anzahl Monate im Bereich
      * @param int $offset Offset in Monaten (0 = ab jetzt, 1 = ab jetzt + months, etc.)
      * @return array
@@ -1175,6 +1183,7 @@ final class EventRepository
                 "SELECT *
              FROM {$this->table}
              WHERE publish <> '0'
+               AND (trash = 0 OR trash IS NULL)
                AND fromdate >= %s
                AND fromdate < %s
              ORDER BY fromdate ASC, fromtime ASC",
@@ -1208,6 +1217,11 @@ final class EventRepository
 
         // publish = 0 → nicht anzeigen
         if (empty($row['publish']) || $row['publish'] === '0') {
+            return null;
+        }
+
+        // trash = 1 → nicht anzeigen
+        if (!empty($row['trash']) && (int)$row['trash'] === 1) {
             return null;
         }
 
