@@ -1,8 +1,8 @@
-import {fmtDMY, escapeHtml, formatToDMYHM} from '../util/helper.js';
+import {fmtWeekdayDMY, fmtDMY, escapeHtml, formatToDMYHM} from '../util/helper.js';
 export const COLUMNS = [
     {
         key: 'status',
-        label: 'Status',
+        label: 'S',
         render: (e) => {
             // Falls Status leer oder kein Array -> neutral
             const statusVal = Array.isArray(e.status) ? e.status[e.status.length - 1] : e.status;
@@ -30,18 +30,18 @@ export const COLUMNS = [
     {
         key: 'fromdate',
         sortable: true,
-        default_dir: 'DESC',
+        default_dir: 'ASC',
         label: 'Start',
-        render: (e) => `${fmtDMY(e.fromdate)} ${escapeHtml(e.fromtime||'')}`.trim()
+        render: (e) => `${fmtWeekdayDMY(e.fromdate)} ${escapeHtml(e.fromtime||'')}`.trim()
     },
     {
         key: 'todate',
         label: 'Ende',
-        render: (e) => `${fmtDMY(e.todate)} ${escapeHtml(e.totime||'')}`.trim()
+        render: (e) => `${fmtWeekdayDMY(e.todate)} ${escapeHtml(e.totime||'')}`.trim()
     },
     {
         key: 'title',
-        label: 'Titel',
+        label: 'Interner Titel',
         render: (e) => {
             const t = escapeHtml(e.title || e.short || '');
             return `<a href="#" class="js-open" data-id="${e.id}">${t}</a>`;

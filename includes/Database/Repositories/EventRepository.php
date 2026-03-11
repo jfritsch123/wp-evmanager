@@ -110,17 +110,6 @@ final class EventRepository
             $params[] = (int) $year_limit;
         }
 
-        /*
-        // Wenn kein Bereich gesetzt → Jahrbegrenzung aus Settings
-        if (empty($args['fromdate_min']) && empty($args['fromdate_max'])) {
-            $year_limit      = ManagerSettings::get_value('year_limit', 'all');
-            if ($year_limit !== 'all' && ctype_digit((string) $year_limit)) {
-                $where[]  = 'YEAR(fromdate) >= %d';
-                $params[] = (int) $year_limit;
-            }
-        }
-        */
-
         // =========================================================
         // 🚫 Ausgebucht-Filter
         // =========================================================
@@ -176,6 +165,8 @@ final class EventRepository
         // =========================================================
         $where_sql = $where ? (' WHERE ' . implode(' AND ', $where)) : '';
 
+        //error_log('EventRepository::args ' .print_r($args, true));
+
         // =========================================================
         // 🔢 ORDER BY (Whitelist)
         // =========================================================
@@ -187,6 +178,8 @@ final class EventRepository
                 $order_by = $args['order_by'] . ' ' . $dir . ', id DESC';
             }
         }
+
+        //error_log('EventRepository::find() order ' .$order_by);
 
         // =========================================================
         // 📊 Total-Zeilen zählen
@@ -231,6 +224,7 @@ final class EventRepository
         //error_log('EventRepository::find() LIMIT/OFFSET: limit=' . $limit . ' offset=' . $offset);
 
         $query = $wpdb->prepare($sql_items, ...$params_all);
+
         //error_log('EventRepository::find() SQL prepared: ' . $wpdb->remove_placeholder_escape($query));
 
         $items = $wpdb->get_results($query, \ARRAY_A) ?: [];

@@ -90,6 +90,25 @@ export function fmtDMY(ymd){
     return `${d}.${m}.${y}`;
 }
 
+export function fmtWeekdayDMY(dateStr){
+
+    if (!dateStr) return '';
+
+    const d = new Date(dateStr);
+
+    const weekday = new Intl.DateTimeFormat('de-DE', {
+        weekday: 'long'
+    }).format(d);
+
+    const date = new Intl.DateTimeFormat('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    }).format(d);
+
+    return `${weekday}, ${date}`;
+}
+
 /**
  * Liefert HTML für ein Help-Icon (analog zu PHP HelpUI::icon)
  * @param {string} context - context_key für den Hilfetext

@@ -29,14 +29,25 @@ final class Plugin
         // Gemeinsame Assets laden (registrieren)
         add_action('init', [$this->assets, 'register']);
 
+        // Capabilities bei Bedarf aktualisieren (z.B. nach Änderungen)
+        add_action('init', [\WP_EvManager\Setup\Roles::class, 'add_caps'], 20);
+
+        // User-Management Filter für event_manager_all
+        add_filter('editable_roles', [\WP_EvManager\Setup\Roles::class, 'filter_editable_roles']);
+        add_filter('map_meta_cap', [\WP_EvManager\Setup\Roles::class, 'map_meta_cap'], 10, 4);
+
+        // Elementor Role Manager Filter
+        add_filter('elementor/editor/user/restrictions', [\WP_EvManager\Setup\Roles::class, 'filter_elementor_restrictions']);
+        add_filter('user_has_cap', [\WP_EvManager\Setup\Roles::class, 'user_has_cap'], 10, 4);
+
+        // Admin-Menüs aufräumen
+        add_action('admin_menu', [\WP_EvManager\Setup\Roles::class, 'hide_admin_menus'], 999);
+
         // WICHTIG: hier den Hook registrieren
         add_action('init', [$this, 'init_wpforms_process_hook']);
 
         // Admin-spezifische Hooks
         if (is_admin()) {
-
-            //add_action('admin_init', [\WP_EvManager\Admin\AdminMenu::class, 'register_settings']);
-
             $this->admin->hooks();
             if ($this->adminAjax === null) {
                 $this->adminAjax = new AdminAjax();

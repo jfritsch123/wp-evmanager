@@ -24,3 +24,13 @@ Version 1.2.2.1
 - CSS Frontend: events-list.scss: .evm-event-icons  mobile Anpassung
 Version 1.2.2.2
 - CSS Frontend: events-list.scss: .evm-event-icons  mobile Anpassung Link
+Version 1.2.3
+- Frontend Bug: Events im Papierkorb werden angezeigt: Refactoring GOLIVE 01
+- Rechte: Die Rechtematrix für den Benutzer mit der User Role „Ev Manager“ wurde umfangreich neu definiert und hat jetzt Schreib/Lese Rechte für: Elementor, Beiträge, Medien, Seiten, Kommentare, EvManager, Hello Theme, Design, Benutzer, Yoast SEO, SiteKit (Google)<br>Refactoring GOLIVE 00
+- Benutzerverwaltung:  Benutzer mit der User Role „Ev Manager“ können Benutzer mit der Rolle „Ev Manager“ hinzufügen. <br>Refactoring GOLIVE 00
+- Standardeinstellungen:<br>
+  - Interner Titel statt Titel, Wochentag in den Datumsspalten anzeigen (Refactoring GOLIVE 02-1)
+  - Eventliste chronologisch sortiert, startend mit heute: Schalter "Ab heute" (Refactoring GOLIVE 02-2)
+  - Aktuelles Jahr in Dropdownliste Jahr vorausgewählt (Refactoring GOLIVE 02-3)
+- Versionsnummer Verwaltung: Version nur noch in Hauptdatei wp-event-manager.php im Header eingetragen
+  - die Versionsnummer wird nun im WordPress-Backend in den Kopfzeilen der EvManager-Seiten angezeigt

@@ -147,7 +147,7 @@ export function fieldStatusGroup(current) {
 
     return `
         <fieldset class="wpem-form__status">
-            <legend>Status</legend>
+            <legend>Status(S)</legend>
             <div class="wpem-radio-group">
                 ${allowed.map(radio).join('')}
             </div>

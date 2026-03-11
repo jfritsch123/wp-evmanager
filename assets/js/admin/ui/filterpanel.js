@@ -1,7 +1,7 @@
 
 import {loadList} from "./renderlist.js";
 import {setDateInputEnabled} from "./filterhelper.js";
-import {lastDayOfMonthStr} from "../util/helper.js";
+import {todayYmd,lastDayOfMonthStr} from "../util/helper.js";
 import {loadEditor} from "./rendereditor.js";
 
 export const state = {
@@ -75,13 +75,14 @@ export function setDefaultFilterState(){
     state.page = 1;
 }
 
-export function readFilters(){
+export function readFilters() {
+
     const $f = $('.wpem-filters-ajax');
 
     state.filters.q      = $f.find('[name=q]').val() || '';
     state.filters.editor = $f.find('[name=editor]').val() || '';
 
-    // Status (Checkboxen → Array)
+    // Status
     state.filters.status = $f.find('input[name="status[]"]:checked')
         .map(function(){ return $(this).val(); })
         .get();
@@ -91,48 +92,75 @@ export function readFilters(){
 
     let fromMin = ($f.find('input[name="fromdate_min"]').val() || '').trim();
     let fromMax = ($f.find('input[name="fromdate_max"]').val() || '').trim();
-    //const abToday = $f.find('input[name=start_ab_today]').is(':checked');
+
+    const abToday = $f.find('input[name=start_ab_today]').is(':checked');
+    const today = todayYmd();
 
     if (y) {
+
         if (mm) {
-            fromMin = `${y}-${mm}-01`;
-            fromMax = lastDayOfMonthStr(y, mm);
+
+            const firstOfMonth = `${y}-${mm}-01`;
+            const lastOfMonth  = lastDayOfMonthStr(y, mm);
+
+            if (abToday && today > lastOfMonth) {
+                // gewählter Monat liegt komplett in der Vergangenheit
+                fromMin = today;
+                fromMax = '';
+            } else {
+                fromMin = firstOfMonth;
+                fromMax = lastOfMonth;
+
+                if (abToday && today > firstOfMonth) {
+                    fromMin = today;
+                }
+            }
+
         } else {
-            fromMin = `${y}-01-01`;
-            fromMax = `${y}-12-31`;
+
+            const firstOfYear = `${y}-01-01`;
+            const lastOfYear  = `${y}-12-31`;
+
+            fromMin = firstOfYear;
+            fromMax = lastOfYear;
+
+            if (abToday && today > firstOfYear) {
+                fromMin = today;
+            }
+
+        }
+
+    } else {
+        if (abToday && !fromMin) {
+            fromMin = today;
         }
     }
-    /*else {
-        if (!fromMin && abToday) {
-            fromMin = todayYmd();
-        }
-    }*/
 
     state.filters.fromdate_min = fromMin;
-    if(fromMax){
+
+    if (fromMax) {
         state.filters.fromdate_max = fromMax;
     }
 
-    // Startdatum-Logik
-    // const fromVal = ($f.find('input[name=start_from]').val() || '').trim();
-    // state.filters.start_ab_today = abToday;
-    // state.filters.start_from     = fromVal;
+    state.filters.start_ab_today = abToday;
 
-    // NEU: Saal-Radios (ein Wert oder '')
+    /*
+     * Saalfilter
+     */
     const valOrEmpty = name => {
         const v = $f.find(`input[name="${name}"]:checked`).val();
-        return (v === undefined) ? '' : String(v);
-        // '' => kein Filter
+        return v === undefined ? '' : String(v);
     };
-    state.filters.place1 = valOrEmpty('place1'); // Kleiner Saal
-    state.filters.place2 = valOrEmpty('place2'); // Großer Saal
-    state.filters.place3 = valOrEmpty('place3'); // Foyer
 
-    // Ausgebucht
+    state.filters.place1 = valOrEmpty('place1');
+    state.filters.place2 = valOrEmpty('place2');
+    state.filters.place3 = valOrEmpty('place3');
+
+    /*
+     * Ausgebucht
+     */
     state.filters.booked_only = $f.find('input[name=booked_only]').is(':checked') ? 1 : 0;
 
-    // trash
-    // state.filters.trash = $f.find('input[name=trash]').is(':checked') ? 1 : 0;
 }
 
 export function resetFilters($f,$mode = null ){

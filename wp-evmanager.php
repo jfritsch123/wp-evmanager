@@ -3,7 +3,7 @@
  * Plugin Name: WP EvManager
  * Plugin URI: https://github.com/jfritsch123/wp-evmanager
  * Description: Klassenbasiertes Event-Plugin (Admin/Frontend getrennt).
- * Version: 1.2.2.2
+ * Version: 1.2.3
  * Author: Joe Fritsch
  * GitHub Plugin URI: https://github.com/jfritsch123/wp-evmanager
  * GitHub Branch: main
@@ -16,7 +16,13 @@ defined('ABSPATH') || exit;
 define('WPEVMANAGER_FILE', __FILE__);
 define('WPEVMANAGER_DIR', plugin_dir_path(__FILE__));
 define('WPEVMANAGER_URL', plugin_dir_url(__FILE__));
-define('WPEVMANAGER_VERSION', '1.2.1.9');
+
+// Version aus dem Plugin-Header auslesen
+if ( ! function_exists( 'get_plugin_data' ) ) {
+	require_once ABSPATH . 'wp-admin/includes/plugin.php';
+}
+$plugin_data = get_plugin_data( WPEVMANAGER_FILE );
+define('WPEVMANAGER_VERSION', $plugin_data['Version'] ?? '1.2.2.2');
 
 define('WPEVMANAGER_IMG_URL','https://neu.loewensaal.at/wp-content/plugins/wp-evmanager/assets/images/');
 

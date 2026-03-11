@@ -46,44 +46,60 @@ export function enableToggleableHallRadios(){
 }
 
 export function initYearMonthFilters(){
+
     const $f = jQuery('.wpem-filters-ajax');
     if (!$f.length || !window.WPEM_FILTER) return;
 
-    const $year   = $f.find('select[name="filter_year"]');
-    const $month  = $f.find('select[name="filter_month"]');
-    const years   = WPEM_FILTER.years || [];
+    const $year  = $f.find('select[name="filter_year"]');
+    const $month = $f.find('select[name="filter_month"]');
+
+    const years  = WPEM_FILTER.years || [];
 
     const elFromMin = $f.find('input[name="fromdate_min"]')[0];
     const elFromMax = $f.find('input[name="fromdate_max"]')[0];
     const $abToday  = $f.find('input[name="start_ab_today"]');
 
-    // Jahre initial befüllen
+    const currentYear = String(new Date().getFullYear());
+
+    /*
+     * Jahre befüllen
+     */
     years.forEach(y => {
-        $year.append(jQuery(`<option/>`, { value:String(y), text:String(y) }));
+        $year.append(
+            jQuery('<option/>', {
+                value: String(y),
+                text:  String(y)
+            })
+        );
     });
 
-    // Events
+    /*
+     * Events
+     */
     $year.on('change', function(){
+
         if (this.value) {
             $month.prop('disabled', false);
-            fillMonthsForYear(this.value,$month);
-        }else{
+            fillMonthsForYear(this.value, $month);
+        } else {
             $month.prop('disabled', true).val('');
         }
-        //updateDateFilterAvailability();
-    });
-    //$month.on('change', updateDateFilterAvailability);
 
-    $abToday.on('change', function() {
-        if (this.checked) {
-            elFromMin.value = '';
-            setDateInputEnabled(elFromMin, false);
-        } else {
-            setDateInputEnabled(elFromMin, true);
-        }
     });
 
-};
+    $abToday.on('change', function(){
+        // aktuell keine Zusatzlogik
+    });
+
+    /*
+     * aktuelles Jahr vorauswählen
+     */
+    if (years.includes(Number(currentYear)) || years.includes(currentYear)) {
+        $year.val(currentYear);
+        $year.trigger('change'); // wichtig → aktiviert Monatsfilter
+    }
+
+}
 
 // Monate für gewähltes Jahr rendern
 function fillMonthsForYear(y,$month){

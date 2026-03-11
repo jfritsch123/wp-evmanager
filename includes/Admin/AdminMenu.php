@@ -75,9 +75,10 @@ final class AdminMenu
      */
     public static function render_db_page(): void
     {
+        $version = defined('WPEVMANAGER_VERSION') ? WPEVMANAGER_VERSION : '';
         ?>
         <div class="wrap wpem-admin-db">
-            <h1><?php esc_html_e('Eventmanager Datenbank', 'wp-evmanager'); ?></h1>
+            <h1><?php esc_html_e('Eventmanager Datenbank', 'wp-evmanager'); ?><?php echo $version ? ' <small style="font-size: 0.5em; vertical-align: middle;">v' . esc_html($version) . '</small>' : ''; ?></h1>
 
             <p><?php esc_html_e('Hier kannst du Tools für die Eventmanager-Datenbank nutzen.', 'wp-evmanager'); ?></p>
 
@@ -207,9 +208,10 @@ final class AdminMenu
         // --- Laden ---
         $all = $repo->all();
 
+        $version = defined('WPEVMANAGER_VERSION') ? WPEVMANAGER_VERSION : '';
         ?>
         <div class="wrap wpem-admin-help">
-            <h1><?php esc_html_e('Eventmanager Hilfe', 'wp-evmanager'); ?></h1>
+            <h1><?php esc_html_e('Eventmanager Hilfe', 'wp-evmanager'); ?><?php echo $version ? ' <small style="font-size: 0.5em; vertical-align: middle;">v' . esc_html($version) . '</small>' : ''; ?></h1>
 
             <h2><?php echo $edit_item ? 'Hilfetext bearbeiten' : 'Neuen Hilfetext anlegen'; ?></h2>
 
@@ -309,8 +311,9 @@ final class AdminMenu
 
         global $wp_roles;
 
+        $version = defined('WPEVMANAGER_VERSION') ? WPEVMANAGER_VERSION : '';
         echo '<div class="wrap">';
-        echo '<h1>' . esc_html__('Rollen & Rechte', 'wp-evmanager') . '</h1>';
+        echo '<h1>' . esc_html__('Rollen & Rechte', 'wp-evmanager') . ($version ? ' <small style="font-size: 0.5em; vertical-align: middle;">v' . esc_html($version) . '</small>' : '') . '</h1>';
 
         // --- Teil A: Rollenübersicht ---
         echo '<h2>' . esc_html__('Rollenübersicht', 'wp-evmanager') . '</h2>';
@@ -371,6 +374,8 @@ final class AdminMenu
             wp_die(__('Keine Berechtigung.', 'wp-evmanager'));
         }
 
+        $version = defined('WPEVMANAGER_VERSION') ? WPEVMANAGER_VERSION : '';
+
         // Aktuelle Settings laden
         $settings = \WP_EvManager\Settings\ManagerSettings::get();
 
@@ -395,7 +400,7 @@ final class AdminMenu
         ?>
 
         <div class="wrap">
-            <h1><?php esc_html_e('Eventmanager Einstellungen', 'wp-evmanager'); ?></h1>
+            <h1><?php esc_html_e('Eventmanager Einstellungen', 'wp-evmanager'); ?><?php echo $version ? ' <small style="font-size: 0.5em; vertical-align: middle;">v' . esc_html($version) . '</small>' : ''; ?></h1>
 
             <form method="post">
                 <?php wp_nonce_field('wpem_manager_settings'); ?>

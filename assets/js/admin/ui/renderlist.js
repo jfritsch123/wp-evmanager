@@ -24,7 +24,7 @@ export function loadList() {
             order_by: state.order_by
         });
 
-     return post('wpem_list_events', payload)
+    return post('wpem_list_events', payload)
         .then(data => {
             // Server sollte total, page, per_page, total_pages mitsenden
             state.total       = Number(data.total || 0);
@@ -133,7 +133,7 @@ export function renderEventRow(e) {
 // 🧠 Hilfsfunktion: Standardrichtung für eine Spalte ermitteln
 function getDefaultSort(key) {
     const col = COLUMNS.find(c => c.key === key);
-    return col && col.defaultDir ? col.defaultDir : 'DESC';
+    return col && col.default_dir ? col.default_dir : 'DESC';
 }
 
 // 🧭 Sortierzustand abhängig vom „Anfrage erhalten“-Schalter setzen

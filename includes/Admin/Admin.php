@@ -118,8 +118,9 @@ final class Admin
             wp_die(__('You are not allowed to view events.', 'wp-evmanager'), 403);
         }
 
+        $version = defined('WPEVMANAGER_VERSION') ? WPEVMANAGER_VERSION : '';
         echo '<div class="wrap">';
-        echo '<h1 class="wp-heading-inline">' . esc_html__('EvManager', 'wp-evmanager') . '</h1>';
+        echo '<h1 class="wp-heading-inline">' . esc_html__('EvManager', 'wp-evmanager') . ($version ? ' <small style="font-size: 0.5em; vertical-align: middle;">v' . esc_html($version) . '</small>' : '') . '</h1>';
 
         // Container: zwei Spalten
         echo '<div class="wpem-grid">';
@@ -171,12 +172,12 @@ final class Admin
                         <input type="button" class="button" style="width:50%" name="fromdate_max_reset" value="Datum löschen">
 
                     </div>
-                    <!--
+
                     <label class="wpem-inline" style="margin-top:.5rem">
                         <input type="checkbox" name="start_ab_today" checked>
                         <span>Ab heute</span>
                     </label>
-                    -->
+
                 </fieldset>
 
                 <!-- Jahr / Monat -->
@@ -195,7 +196,7 @@ final class Admin
                 </fieldset>
 
                 <fieldset class="wpem-status">
-                    <legend>Status</legend>
+                    <legend>Status(S)</legend>
 
                     <label class="anfrage">
                         <input type="checkbox" name="status[]" value="Anfrage erhalten">

@@ -199,8 +199,8 @@ a:active {
 /* status */
 fieldset.wpem-status label {
     display: inline-block;
-    padding: 4px;
-    margin: 2px 0;
+    padding: 2px;
+    margin: 0;
     width: 100%;
 }
 
@@ -239,6 +239,9 @@ fieldset.wpem-status .dashicons.dashicons-yes-alt.vereinbarung{
     color: var(--status-vereinbarung);
 }
 
+#wpem-list td, #wpem-list th {
+    padding:6px 3px !important;
+}
 #wpem-list .anfrage{
     color:var(--status-anfrage);
 }
