@@ -1149,6 +1149,49 @@ final class EventRepository
     }
 
     /**
+     * Liefert alle Events eines bestimmten Monats.
+     * @param int $month Monat (1-12)
+     * @param int $year Jahr (YYYY)
+     * @param bool $all_statuses Falls true, werden auch nicht veröffentlichte/gelöschte Events geladen.
+     * @return array Gruppiert nach Jahr-Monat (für Kompatibilität mit find_grouped_by_month)
+     */
+    public function find_by_month(int $month, int $year, bool $all_statuses = false): array
+    {
+        global $wpdb;
+
+        $from = sprintf('%04d-%02d-01', $year, $month);
+        $to   = (new \DateTimeImmutable($from))->modify('last day of this month')->format('Y-m-d');
+
+        $where = "fromdate >= %s AND fromdate <= %s";
+        if (!$all_statuses) {
+            $where .= " AND publish <> '0' AND (trash = 0 OR trash IS NULL)";
+        }
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT *
+             FROM {$this->table}
+             WHERE $where
+             ORDER BY 
+                (CASE WHEN publish <> '0' AND (trash = 0 OR trash IS NULL) THEN 0 ELSE 1 END) ASC,
+                {$this->orderByEvents()}",
+                $from,
+                $to
+            ),
+            ARRAY_A
+        ) ?: [];
+
+        $grouped = [];
+        foreach ($rows as $ev) {
+            if (empty($ev['fromdate']) || $ev['fromdate'] === '0000-00-00') continue;
+            $ym = substr($ev['fromdate'], 0, 7);
+            $grouped[$ym][] = $ev;
+        }
+
+        return $grouped;
+    }
+
+    /**
      * Liefert kommende Events in einem Datumsbereich ab heutigem Datum, gruppiert nach Jahr-Monat.
      * geändert am 2026-03-07: Junie:
      *      SQL-Abfrage um `AND (trash = 0 OR trash IS NULL)` erweitert.
@@ -1160,17 +1203,17 @@ final class EventRepository
     {
         global $wpdb;
 
-        $today = new \DateTimeImmutable('today');
+        // Wir gehen immer vom 1. des aktuellen Monats aus, um volle Monate zu erhalten
+        $base = new \DateTimeImmutable('first day of this month');
 
-        // Start: heute + offset*months Monate
-        $start = $today->modify('+' . ($offset * $months) . ' months');
+        // Start: base + offset*months Monate
+        $start = $base->modify('+' . ($offset * $months) . ' months');
 
-        // End: erster Tag des Monats, der (offset+months) Monate nach dem aktuellen Monat beginnt
-        $end = (new \DateTimeImmutable('first day of this month'))
-            ->modify('+' . (($offset + 1) * $months) . ' months');
+        // End: base + (offset+1)*months Monate
+        $end = $base->modify('+' . (($offset + 1) * $months) . ' months');
 
         $from = $start->format('Y-m-d');
-        $to   = $end->format('Y-m-d'); // Monatsanfang
+        $to   = $end->format('Y-m-d'); // Erster Tag des Folgemonats (da < $to)
 
         $rows = $wpdb->get_results(
             $wpdb->prepare(
@@ -1180,7 +1223,8 @@ final class EventRepository
                AND (trash = 0 OR trash IS NULL)
                AND fromdate >= %s
                AND fromdate < %s
-             ORDER BY fromdate ASC, fromtime ASC",
+               AND fromdate >= CURDATE()
+             ORDER BY {$this->orderByEvents()}",
                 $from,
                 $to
             ),

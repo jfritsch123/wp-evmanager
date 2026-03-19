@@ -55,6 +55,9 @@ final class Frontend
             <?php
             $offset = 0;
             include $this->locate_template('events-list.php');
+            // Hilfsausgabe zur Fehlersuche deaktiviert. 
+            // Zum Reaktivieren (z.B. für Monat 09, 2026) die folgende Zeile einkommentieren:
+            // echo $this->get_events_by_month_html('09', '2026');
             ?>
         </div>
         <div class="evm-events-more">
@@ -128,6 +131,28 @@ final class Frontend
             'html' => $html,
             'id'   => $id,
         ]);
+    }
+
+    /**
+     * Liefert HTML für alle Events eines bestimmten Monats.
+     * @param string $month Monat (MM)
+     * @param string $year Jahr (YYYY)
+     * @return string HTML
+     */
+    public function get_events_by_month_html(string $month, string $year): string
+    {
+        $repo = new \WP_EvManager\Database\Repositories\EventRepository();
+        $groups = $repo->find_by_month((int)$month, (int)$year, true);
+
+        if (empty($groups)) {
+            return '<div class="evm-no-events">Keine Veranstaltungen in diesem Monat gefunden.</div>';
+        }
+
+        ob_start();
+        $showPublish = true;
+        $offset = 0; // Für Template-Kompatibilität, falls benötigt
+        include $this->locate_template('events-list.php');
+        return ob_get_clean();
     }
 
     private function locate_template(string $file): string

@@ -34,3 +34,10 @@ Version 1.2.3
   - Aktuelles Jahr in Dropdownliste Jahr vorausgewählt (Refactoring GOLIVE 02-3)
 - Versionsnummer Verwaltung: Version nur noch in Hauptdatei wp-event-manager.php im Header eingetragen
   - die Versionsnummer wird nun im WordPress-Backend in den Kopfzeilen der EvManager-Seiten angezeigt
+Version 1.2.3.1
+- Frontend Bug: Nicht alle Events werden angezeigt
+  - Hilfsmethoden zur Fehlersuche: 
+    - public function find_by_month(int $month, int $year): array
+    - public function get_events_by_month_html(string $month, string $year): string
+    - in public function shortcode_events(): echo $this->get_events_by_month_html('09', '2026');
+  - Verbesserung der SQL Abfragen ...

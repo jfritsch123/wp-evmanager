@@ -1,5 +1,6 @@
 
 <?php if (!empty($groups)): ?>
+    <?php $currentMonth = ''; ?>
     <div class="evm-events-block">
 
         <?php foreach ($groups as $ym => $events): ?>
@@ -63,6 +64,15 @@
                         <div class="evm-event-title">
                             <?php echo wp_kses($event['title'] ?? '',[ 'br' => [] ]); ?>
                         </div>
+
+                        <?php if (!empty($showPublish)): ?>
+                            <div class="evm-event-publish">
+                                publish: <?php echo esc_html($event['publish'] ?? '0'); ?>
+                                <?php if (!empty($event['trash'])): ?>
+                                    (Papierkorb)
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
 
                         <div class="evm-event-icons">
                             <?php if ((int)$event['publish'] >= 2): ?>
