@@ -3,6 +3,9 @@
 // ============================
 // Farben (kannst du anpassen oder mit :root Variablen arbeiten)
 
+:focus {
+  outline: none;
+}
 
 .evm-events-list {
   margin: 2rem 0;

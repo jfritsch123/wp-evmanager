@@ -96,6 +96,9 @@
   color: #666;
   margin-top: 4px; }
 
+:focus {
+  outline: none; }
+
 .evm-events-list {
   margin: 2rem 0; }
   .evm-events-list .evm-month {
