@@ -184,6 +184,9 @@
 .evm-event-detail .evm-detail-date {
   font-size: 18px;
   font-weight: 500; }
+.evm-event-detail a {
+  color: #000;
+  font-weight: bold; }
 
 .evm-loading {
   display: flex;

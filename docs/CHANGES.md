@@ -45,3 +45,5 @@
   - DS Erklärung: Rechte für EV Manager anpassen
 - Version 1.2.3.3
   - DS Erklärung: weitere Standardeinstellungen anpassen
+- Version 1.2.3.4
+  - Verlinkung im Event Detail Popup: Farbe schwarz, bold
