@@ -1,43 +1,45 @@
 ## Änderungen in WP Event Manager
 ### für commit Meldungen
-ab 02.01.2026, 17:33
-- Änderung Feld Organisation in form_schema: typ organization -> typ text
-- Filter fromdate_max wieder aktivieren
-ab 13.01.2026, 10:00
-- Frontend Bug: nur 1 Event in daymap sichtbar obwohl zwei Anfragen vorliegen
-- Editor Erweiterung: Beim Öffnen des todate-Pickers (onOpen) immer die aktuelle fromdate als minDate setzen.
-Vaersion 1.2.1.6
-- Backend CSS Verbesserungen: Editor - legend, label
-- Verbessertes Errorhandling in saveditor.js
-Version 1.2.1.7
-- entfernt da nicht mehr verwendet: public static function register_settings()
-- neu in Settings: Schalter Status „Anfrage erhalten“ beim Start aktivieren
-- HelpRepository: Hilfe für alle user: if (!current_user_can('manage_options')) {//wp_send_json_error('No permission'); }
-Version 1.2.1.8
-- Feature Änderung in Settings: Admin Settings: History Tabelle leeren, wenn sie existiert, sonst anlegen
-Version 1.2.1.9
-- DBTools:  public static function post_import_adjustments_new gelöscht, da nicht mehr verwendet
-- Frontend: Logo kultur-im-loewen.png hinzugefügt, Anpassung in events-detail.php, CSS Anpassung 
-Version 1.2.2.0
-- "Code cleaning (error_log, console.debug), updating to Version 1.2.2.0"
-Version 1.2.2.1
-- CSS Frontend: events-list.scss: .evm-event-icons  mobile Anpassung
-Version 1.2.2.2
-- CSS Frontend: events-list.scss: .evm-event-icons  mobile Anpassung Link
-Version 1.2.3
-- Frontend Bug: Events im Papierkorb werden angezeigt: Refactoring GOLIVE 01
-- Rechte: Die Rechtematrix für den Benutzer mit der User Role „Ev Manager“ wurde umfangreich neu definiert und hat jetzt Schreib/Lese Rechte für: Elementor, Beiträge, Medien, Seiten, Kommentare, EvManager, Hello Theme, Design, Benutzer, Yoast SEO, SiteKit (Google)<br>Refactoring GOLIVE 00
-- Benutzerverwaltung:  Benutzer mit der User Role „Ev Manager“ können Benutzer mit der Rolle „Ev Manager“ hinzufügen. <br>Refactoring GOLIVE 00
-- Standardeinstellungen:<br>
-  - Interner Titel statt Titel, Wochentag in den Datumsspalten anzeigen (Refactoring GOLIVE 02-1)
-  - Eventliste chronologisch sortiert, startend mit heute: Schalter "Ab heute" (Refactoring GOLIVE 02-2)
-  - Aktuelles Jahr in Dropdownliste Jahr vorausgewählt (Refactoring GOLIVE 02-3)
-- Versionsnummer Verwaltung: Version nur noch in Hauptdatei wp-event-manager.php im Header eingetragen
-  - die Versionsnummer wird nun im WordPress-Backend in den Kopfzeilen der EvManager-Seiten angezeigt
-Version 1.2.3.1
-- Frontend Bug: Nicht alle Events werden angezeigt
-  - Hilfsmethoden zur Fehlersuche: 
-    - public function find_by_month(int $month, int $year): array
-    - public function get_events_by_month_html(string $month, string $year): string
-    - in public function shortcode_events(): echo $this->get_events_by_month_html('09', '2026');
-  - Verbesserung der SQL Abfragen ...
+- ab 02.01.2026, 17:33
+  - Änderung Feld Organisation in form_schema: typ organization -> typ text
+  - Filter fromdate_max wieder aktivieren
+- ab 13.01.2026, 10:00
+  - Frontend Bug: nur 1 Event in daymap sichtbar obwohl zwei Anfragen vorliegen
+  - Editor Erweiterung: Beim Öffnen des todate-Pickers (onOpen) immer die aktuelle fromdate als minDate setzen.
+- Version 1.2.1.6
+  - Backend CSS Verbesserungen: Editor - legend, label
+  - Verbessertes Errorhandling in saveditor.js
+- Version 1.2.1.7
+  - entfernt da nicht mehr verwendet: public static function register_settings()
+  - neu in Settings: Schalter Status „Anfrage erhalten“ beim Start aktivieren
+  - HelpRepository: Hilfe für alle user: if (!current_user_can('manage_options')) {//wp_send_json_error('No permission'); }
+- Version 1.2.1.8
+  - Feature Änderung in Settings: Admin Settings: History Tabelle leeren, wenn sie existiert, sonst anlegen
+- Version 1.2.1.9
+  - DBTools:  public static function post_import_adjustments_new gelöscht, da nicht mehr verwendet
+  - Frontend: Logo kultur-im-loewen.png hinzugefügt, Anpassung in events-detail.php, CSS Anpassung 
+- Version 1.2.2.0
+  - "Code cleaning (error_log, console.debug), updating to Version 1.2.2.0"
+- Version 1.2.2.1
+  - CSS Frontend: events-list.scss: .evm-event-icons  mobile Anpassung
+- Version 1.2.2.2
+  - CSS Frontend: events-list.scss: .evm-event-icons  mobile Anpassung Link
+- Version 1.2.3
+  - Frontend Bug: Events im Papierkorb werden angezeigt: Refactoring GOLIVE 01
+  - Rechte: Die Rechtematrix für den Benutzer mit der User Role „Ev Manager“ wurde umfangreich neu definiert und hat jetzt Schreib/Lese Rechte für: Elementor, Beiträge, Medien, Seiten, Kommentare, EvManager, Hello Theme, Design, Benutzer, Yoast SEO, SiteKit (Google)<br>Refactoring GOLIVE 00
+  - Benutzerverwaltung:  Benutzer mit der User Role „Ev Manager“ können Benutzer mit der Rolle „Ev Manager“ hinzufügen. <br>Refactoring GOLIVE 00
+  - Standardeinstellungen:<br>
+    - Interner Titel statt Titel, Wochentag in den Datumsspalten anzeigen (Refactoring GOLIVE 02-1)
+    - Eventliste chronologisch sortiert, startend mit heute: Schalter "Ab heute" (Refactoring GOLIVE 02-2)
+    - Aktuelles Jahr in Dropdownliste Jahr vorausgewählt (Refactoring GOLIVE 02-3)
+  - Versionsnummer Verwaltung: Version nur noch in Hauptdatei wp-event-manager.php im Header eingetragen
+    - die Versionsnummer wird nun im WordPress-Backend in den Kopfzeilen der EvManager-Seiten angezeigt
+- Version 1.2.3.1
+  - Frontend Bug: Nicht alle Events werden angezeigt
+    - Hilfsmethoden zur Fehlersuche: 
+      - public function find_by_month(int $month, int $year): array
+      - public function get_events_by_month_html(string $month, string $year): string
+      - in public function shortcode_events(): echo $this->get_events_by_month_html('09', '2026');
+    - Verbesserung der SQL Abfragen ...
+- Version 1.2.3.2
+  - DS Erklärung: Rechte für EV Manager anpassen

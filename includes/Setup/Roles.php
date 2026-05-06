@@ -119,6 +119,17 @@ final class Roles
             $role->add_cap('wpseo_manage_redirects');
             $role->add_cap('wpseo_edit_advanced_metadata');
             $role->add_cap('wpseo_bulk_edit');
+
+            // Seiten-Bearbeitung explizit erlauben (für Datenschutzerklärung)
+            $role->add_cap('edit_pages');
+            $role->add_cap('edit_others_pages');
+            $role->add_cap('edit_published_pages');
+            $role->add_cap('edit_private_pages');
+            $role->add_cap('publish_pages');
+            $role->add_cap('delete_pages');
+            $role->add_cap('delete_others_pages');
+            $role->add_cap('delete_published_pages');
+            $role->add_cap('delete_private_pages');
         }
 
         // Event Manager OWN: nur eigene
@@ -292,6 +303,23 @@ final class Roles
 
             if ($is_yoast) {
                 $allcaps['manage_options'] = true;
+            }
+
+            // 9. Datenschutzseite Bearbeitung erlauben
+            $privacy_page_id = (int) get_option('wp_page_for_privacy_policy');
+            if ($privacy_page_id > 0) {
+                if (isset($_GET['post']) && (int)$_GET['post'] === $privacy_page_id) {
+                    $allcaps['manage_options'] = true;
+                }
+                if (isset($_POST['post_ID']) && (int)$_POST['post_ID'] === $privacy_page_id) {
+                    $allcaps['manage_options'] = true;
+                }
+                // REST API Check für Gutenberg/Elementor Editor
+                if (defined('REST_REQUEST') && constant('REST_REQUEST')) {
+                    if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/wp/v2/pages/' . $privacy_page_id) !== false) {
+                        $allcaps['manage_options'] = true;
+                    }
+                }
             }
         }
 
