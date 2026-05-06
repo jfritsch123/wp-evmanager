@@ -43,3 +43,5 @@
     - Verbesserung der SQL Abfragen ...
 - Version 1.2.3.2
   - DS Erklärung: Rechte für EV Manager anpassen
+- Version 1.2.3.3
+  - DS Erklärung: weitere Standardeinstellungen anpassen

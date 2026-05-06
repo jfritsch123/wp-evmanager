@@ -226,6 +226,15 @@ final class Roles
                 return ['do_not_allow'];
             }
         }
+
+        // Datenschutzseite-Berechtigungen (WordPress mappt manage_privacy_options standardmäßig auf manage_options)
+        if ($cap === 'manage_privacy_options') {
+            $user = wp_get_current_user();
+            if ($user && in_array('event_manager_all', (array)$user->roles, true)) {
+                return ['read']; // 'read' reicht hier als Platzhalter, damit die Prüfung positiv ausfällt
+            }
+        }
+
         return $caps;
     }
 
@@ -308,16 +317,22 @@ final class Roles
             // 9. Datenschutzseite Bearbeitung erlauben
             $privacy_page_id = (int) get_option('wp_page_for_privacy_policy');
             if ($privacy_page_id > 0) {
+                // Wir gewähren manage_options, wenn die Privacy-Page im Fokus steht.
+                // WordPress prüft in map_meta_cap für die Privacy-Page zusätzlich manage_privacy_options.
+                
                 if (isset($_GET['post']) && (int)$_GET['post'] === $privacy_page_id) {
                     $allcaps['manage_options'] = true;
+                    $allcaps['manage_privacy_options'] = true;
                 }
                 if (isset($_POST['post_ID']) && (int)$_POST['post_ID'] === $privacy_page_id) {
                     $allcaps['manage_options'] = true;
+                    $allcaps['manage_privacy_options'] = true;
                 }
                 // REST API Check für Gutenberg/Elementor Editor
                 if (defined('REST_REQUEST') && constant('REST_REQUEST')) {
                     if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/wp/v2/pages/' . $privacy_page_id) !== false) {
                         $allcaps['manage_options'] = true;
+                        $allcaps['manage_privacy_options'] = true;
                     }
                 }
             }
