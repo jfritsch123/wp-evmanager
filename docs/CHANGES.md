@@ -49,3 +49,5 @@
   - Verlinkung im Event Detail Popup: Farbe schwarz, bold
 - Version 1.2.3.5
   - Verlinkung im Event Detail Popup: Farbe schwarz !important
+- Version 1.2.3.6
+  - Hilfe Button für TinyMCE Editor (Context Key: link_external)

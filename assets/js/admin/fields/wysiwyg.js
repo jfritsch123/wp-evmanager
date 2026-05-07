@@ -10,11 +10,31 @@ export function initEditors() {
         wp.editor.initialize(id, {
             tinymce: {
                 wpautop: true,
-                toolbar1: 'formatselect,bold,italic,link,bullist,numlist,blockquote,alignleft,aligncenter,alignright,undo,redo,removeformat',
+                toolbar1: 'formatselect,bold,italic,link,unlink,bullist,numlist,blockquote,alignleft,aligncenter,alignright,undo,redo,removeformat,wpem_help',
                 toolbar2: '',
                 menubar: false,
                 statusbar: true,
-                height: (id === 'note') ? 260 : 220
+                height: (id === 'note') ? 260 : 220,
+                setup: function(editor) {
+                    editor.addButton('wpem_help', {
+                        title: 'Hilfe anzeigen',
+                        icon: 'help',
+                        onclick: function() {
+                            const context = 'link_external';
+                            if (typeof ajaxurl !== 'undefined') {
+                                jQuery.get(ajaxurl, { action: 'wpem_help', context }, function(response) {
+                                    if (response.success) {
+                                        jQuery('#wpem-help-modal .wpem-help-title').text(response.data.title);
+                                        jQuery('#wpem-help-modal .wpem-help-content').html(response.data.content);
+                                        jQuery('#wpem-help-overlay, #wpem-help-modal').fadeIn(200);
+                                    } else {
+                                        alert('Keine Hilfe gefunden.');
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
             },
             quicktags: false,
             mediaButtons: false
