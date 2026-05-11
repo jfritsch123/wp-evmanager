@@ -51,3 +51,5 @@
   - Verlinkung im Event Detail Popup: Farbe schwarz !important
 - Version 1.2.3.6
   - Hilfe Button für TinyMCE Editor (Context Key: link_external)
+- Version 1.2.3.7
+  - RangeError: date value is not finite in DateTimeFormat.format(): helper.js (99 - 102)

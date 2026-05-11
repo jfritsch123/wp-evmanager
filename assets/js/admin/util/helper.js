@@ -96,6 +96,11 @@ export function fmtWeekdayDMY(dateStr){
 
     const d = new Date(dateStr);
 
+    if (isNaN(d.getTime())) {
+        console.error("fmtWeekdayDMY: Ungültiges Datum übergeben:", dateStr);
+        return dateStr;
+    }
+
     const weekday = new Intl.DateTimeFormat('de-DE', {
         weekday: 'long'
     }).format(d);
