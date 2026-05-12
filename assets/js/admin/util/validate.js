@@ -15,11 +15,17 @@ export function validateForm(formEl) {
     const fromdate = formEl.querySelector('[name="fromdate"]');
     if (!fromdate.value) {
         errors.push({field: fromdate, message: 'Startdatum ist erforderlich'});
+    } else if (isNaN(new Date(fromdate.value).getTime())) {
+        errors.push({field: fromdate, message: 'Startdatum ist ungültig'});
     }
 
     const todate = formEl.querySelector('[name="todate"]');
-    if (todate.value && fromdate.value && todate.value < fromdate.value) {
-        errors.push({field: todate, message: 'Enddatum darf nicht vor Startdatum liegen'});
+    if (todate.value) {
+        if (isNaN(new Date(todate.value).getTime())) {
+            errors.push({field: todate, message: 'Enddatum ist ungültig'});
+        } else if (fromdate.value && !isNaN(new Date(fromdate.value).getTime()) && todate.value < fromdate.value) {
+            errors.push({field: todate, message: 'Enddatum darf nicht vor Startdatum liegen'});
+        }
     }
 
     const organizer = formEl.querySelector('[name="organizer"]');
