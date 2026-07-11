@@ -55,3 +55,5 @@
   - RangeError: date value is not finite in DateTimeFormat.format(): helper.js (99 - 102)
 - Version 1.2.3.8
   - Verbesserung der vavalidateForm Funktion: Fehlende Validierung von fromdate und todate ergänzt (if (isNaN(new Date(fromdate.value).getTime())), Fehlermeldungen für ungültige Datumsangaben hinzugefügt
+- Version 1.2.3.9
+  - Changed to Version 1.2.3.9 to restore plugin on loewensaal.at
